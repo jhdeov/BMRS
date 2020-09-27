@@ -30,7 +30,7 @@ In the `main.py` file, replace `word=something` with your own word that is an ac
 6. The output for now is a long log of prints. The final printed element is a table that shows the input and output alongside all labels, predicates, and functions
 # Writing your own code
 For now, if you want to write your own code then do the following
-1) Copy the `Template.py` file and give it a unique name
+1) From the `Formulas` folder, copy the `Template.py` file and give it a unique name
 2) Modify it based on the instructions there. 
 3) Apply the steps from "Running an example"
 
