@@ -1,4 +1,4 @@
-from Formulas.Bhaskar_even_a import *
+from Formulas.HToneSpreadPenult import *
 
 class Input:
     def __init__(self,word):
@@ -190,52 +190,112 @@ class Input:
                     if label in ['#','%']:
                         self.output_to_labels[copy][label][domain_element] = False
                     if self.output_to_labels[copy][label][domain_element] is None:
-                        self.get_output_value(copy, label, domain_element)
+                        #self.get_output_value(copy, label, domain_element)
+                        self.get_value(copy, 'label',label, domain_element)
 
+    # def get_output_value(self,copy,label,domain_element):
+    #     """ get value returns the value of an output node just in case the output formula references another output formula """
+    #     """always use get when spanning over domain elelemts"""
+    #     print("entered get output; let's check if the domain element is None or outside the word")
+    #     if domain_element is None: return False
+    #     elif domain_element<0 or domain_element>=len(self.word): return False
+    #
+    #     print("Not none.")
+    #     print(f'Doing get output value for copy {copy}, label {label}, domain element {domain_element} for input symbol'
+    #           f'{self.word[domain_element]}')
+    #
+    #     if self.output_to_labels[copy][label].get(domain_element) is not None:
+    #         print("I entered the not-null escape")
+    #         return self.output_to_labels[copy][label][domain_element]
+    #
+    #     # print('gonna find pred and succ: ')
+    #     pred = self.input_to_functions['pred'].get(domain_element)
+    #     succ = self.input_to_functions['succ'].get(domain_element)
+    #
+    #
+    #     found=personal_Output_Formula(self,copy,label,domain_element)
+    #     print('returned output value was ' + str(found))
+    #     self.output_to_labels[copy][label][domain_element] = found
+    #     return found
+    #
+    # def get_predicate_value(self,predicate,domain_element):
+    #     """ get value returns the value of a predicate over the input domain element"""
+    #     """always use get when spanning over domain elelemts"""
+    #     print("entered get pred; let's check if the domain element is None or outside the word")
+    #     if domain_element is None: return False
+    #     elif domain_element<0 or domain_element>=len(self.word): return False
+    #
+    #     print("Not none.")
+    #     print(f'Doing get predicate for predicate {predicate}, domain element {domain_element} for input symbol'
+    #           f'{self.word[domain_element]}')
+    #     if self.input_to_predicates[predicate].get(domain_element) is not None:
+    #         print("I entered the not-null escape")
+    #         return self.input_to_predicates[predicate][domain_element]
+    #
+    #     print('going before the found for predicate: '+str(predicate))
+    #     found=personal_Predicate_Formula(self,predicate,domain_element)
+    #     print('returned predicate value was ' + str(found))
+    #     self.input_to_predicates[predicate][domain_element] = found
+    #     print('i set up the predicate:')
+    #     print(self.input_to_predicates)
+    #     return found
 
+    def get_value(self,level,type,name,domain_element):
+        if not ( level in ['input'] or level in self.copyset):
+            print("error, wrong level given to get_value. Must be `input' or a copy")
+            print(f'{level}')
+            exit()
+        if not (type in ['label','function','predicate']):
+            print("error, wrong type given to get_value. Must be 'label', 'function', or 'predicate'")
+            print(f'{type}')
 
-    def get_output_value(self,copy,label,domain_element):
-        """ get value returns the value of an output node just in case the output formula references another output formula """
-        """always use get when spanning over domain elelemts"""
-        print("entered get output; let's check if the domain element is None or outside the word")
+            exit()
+
+        print("entered get value; let's check if the domain element is None or outside the word")
         if domain_element is None: return False
         elif domain_element<0 or domain_element>=len(self.word): return False
+        print("Not none")
 
-        print("Not none. Doing get for copy-label-domain at input symbol "),print(copy,label,domain_element,self.word[domain_element])
-        if self.output_to_labels[copy][label].get(domain_element) is not None:
-            print("I entered the not-null escape")
-            return self.output_to_labels[copy][label][domain_element]
-
-        # print('gonna find pred and succ: ')
-        pred = self.input_to_functions['pred'].get(domain_element)
-        succ = self.input_to_functions['succ'].get(domain_element)
+        print(f'Doing get for level {level}, type {type}, name {name}, domain element {domain_element} for input symbol'
+              f'{self.word[domain_element]}')
 
 
-        found=personal_Output_Formula(self,copy,label,domain_element)
-        print('returned output value was ' + str(found))
-        self.output_to_labels[copy][label][domain_element] = found
-        return found
+        if level == 'input':
+            if type == 'label': return self.input_to_labels[name].get(domain_element)
+            elif type =="function": return self.input_to_functions[name].get(domain_element)
+            elif type == 'predicate':
+                if self.input_to_predicates[name].get(domain_element) is not None:
+                    print("I entered the not-null escape")
+                    return self.input_to_predicates[name][domain_element]
+                print('going before the found for predicate: ' + str(name))
 
-    def get_predicate_value(self,predicate,domain_element):
-        """ get value returns the value of a predicate over the input domain element"""
-        """always use get when spanning over domain elelemts"""
-        print("entered get pred; let's check if the domain element is None or outside the word")
-        if domain_element is None: return False
-        elif domain_element<0 or domain_element>=len(self.word): return False
+                found = personal_Predicate_Formula(self, name, domain_element)
+                print('returned predicate value was ' + str(found))
+                self.input_to_predicates[name][domain_element] = found
+                print('i set up the predicate:')
+                print(self.input_to_predicates)
+                return found
 
-        print("Not none. Doing get for predicate-domain at input symbol ")
-        print(predicate,domain_element,self.word[domain_element])
-        if self.input_to_predicates[predicate].get(domain_element) is not None:
-            print("I entered the not-null escape")
-            return self.input_to_predicates[predicate][domain_element]
+        if level in self.copyset:
+            if type == 'label':
+                if self.output_to_labels[level][name].get(domain_element) is not None:
+                    print("I entered the not-null escape")
+                    return self.output_to_labels[level][name][domain_element]
+                else:
+                    found = personal_Output_Formula(self, level, name, domain_element)
+                    print('returned output value was ' + str(found))
+                    self.output_to_labels[level][name][domain_element] = found
+                    return found
 
-        print('going before the found for predicate:'+str(predicate))
-        found=personal_Predicate_Formula(self,predicate,domain_element)
-        print('returned predicate value was ' + str(found))
-        self.input_to_predicates[predicate][domain_element] = found
-        print('i set up the predicate:')
-        print(self.input_to_predicates)
-        return found
+            elif type =="function":
+                if self.output_to_functions[level][name].get(domain_element) is not None:
+                    print("I entered the not-null escape")
+                    return self.output_to_functions[level][name][domain_element]
+                else:
+                    found = personal_Output_Formula(self, level, name, domain_element)
+                    print('returned output value was ' + str(found))
+                    self.output_to_functions[level][name][domain_element] = found
+                    return found
 
 
 

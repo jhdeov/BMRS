@@ -14,35 +14,35 @@ def personal_features(self):
     return
 
 def personal_Output_Formula(self, copy, label, domain_element):
-    pred = self.input_to_functions['pred'].get(domain_element)
-    succ = self.input_to_functions['succ'].get(domain_element)
+    pred = self.get_value('input','function','pred',domain_element)
+    succ = self.get_value('input','function','succ',domain_element)
 
     if copy is 1 and label is 'a':
-        if self.input_to_labels['a'].get(domain_element):
+        if self.get_value('input','label','a',domain_element):
             if pred is 0:
                 return True
             else:
-                return self.get_output_value(1, 'b', pred)
+                return self.get_value(1,'label', 'b', pred)
         else:
             return False
     if copy is 1 and label is 'b':
-        if self.input_to_labels['a'].get(domain_element):
-            return self.get_output_value(1, 'a', pred)
+        if self.get_value('input','label','a',domain_element):
+            return self.get_value(1, 'label','a', pred)
         else:
             return False
     if copy == 1 and label == 'c':
         if domain_element == len(self.word) - 1:
-            return self.get_output_value(1, 'b', pred)
+            return self.get_value(1,'label', 'b', pred)
         else:
             return False
     if copy == 1 and label == 'd':
         if domain_element == len(self.word) - 1:
-            return self.get_output_value(1, 'a', pred)
+            return self.get_value(1,'label', 'a', pred)
         else:
             return False
     if copy == 2 and label == 'b':
-        if self.input_to_labels['a'].get(domain_element):
-            return self.get_output_value(1, 'a', pred)
+        if self.get_value('input','label','a',domain_element):
+            return self.get_value(1,'label', 'a', pred)
         else:
             return False
     if copy == 2 and label in ['a','c','d']: return False

@@ -25,25 +25,25 @@ def personal_predicate_setup(self):
 
 
 def personal_Output_Formula(self, copy, label, domain_element):
-    pred = self.input_to_functions['pred'].get(domain_element)
-    succ = self.input_to_functions['succ'].get(domain_element)
+    pred = self.get_value('input','function','pred',domain_element)
+    succ = self.get_value('input','function','succ',domain_element)
 
 
     if copy == 1 and label == 'voiced':
-        if self.get_predicate_value('final voiced obstruent',domain_element): return False
-        else: return self.input_to_labels['voiced'].get(domain_element)
+        if self.get_value('input','predicate','final voiced obstruent',domain_element): return False
+        else: return self.get_value('input','label','voiced',domain_element)
     if copy == 1 and label in ['vowel','sonorant','consonant']:
-        return self.input_to_labels[label].get(domain_element)
+        return self.get_value('input','label',label,domain_element)
 
 def personal_Predicate_Formula(self,predicate,domain_element):
     if predicate == 'voiced obstruent':
-        if self.input_to_labels['sonorant'].get(domain_element): return False
-        else: return self.input_to_labels['voiced'].get(domain_element)
+        if self.get_value('input','label','sonorant',domain_element): return False
+        else: return self.get_value('input','label','voiced',domain_element)
     if predicate == 'final':
-        succ = self.input_to_functions['succ'].get(domain_element)
-        if self.input_to_labels['%'].get(succ): return True
+        succ = self.get_value('input','function','succ',domain_element)
+        if self.get_value('input','label','%',succ): return True
         else: return False
     if predicate == 'final voiced obstruent':
-        if self.get_predicate_value('voiced obstruent',domain_element):
-            return self.get_predicate_value('final',domain_element)
+        if self.get_value('input','predicate','voiced obstruent',domain_element):
+            return self.get_value('input','predicate','final',domain_element)
         else: return False

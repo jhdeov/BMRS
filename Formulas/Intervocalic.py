@@ -28,19 +28,19 @@ def personal_predicate_setup(self):
     return
 
 def personal_Output_Formula(self, copy, label, domain_element):
-    pred = self.input_to_functions['pred'].get(domain_element)
-    succ = self.input_to_functions['succ'].get(domain_element)
+    pred = self.get_value('input','function','pred',domain_element)
+    succ = self.get_value('input','function','succ',domain_element)
 
     if copy == 1 and label == 'voiced':
-        pred = self.input_to_functions['pred'].get(domain_element)
-        succ = self.input_to_functions['succ'].get(domain_element)
-        if self.input_to_labels['vowel'].get(pred) and self.input_to_labels['vowel'].get(succ) and \
-            self.input_to_labels['consonant'].get(domain_element):
+        pred = self.get_value('input','function','pred',domain_element)
+        succ = self.get_value('input','function','succ',domain_element)
+        if self.get_value('input','label','vowel',pred) and self.input_to_labels['vowel'].get(succ) and \
+            self.get_value('input','label','consonant',domain_element):
             return True
         else:
-            return self.input_to_labels['voiced'].get(domain_element)
+            return self.get_value('input','label','voiced',domain_element)
     if copy == 1 and label in self.labels_list and label != 'voiced':
-        return self.input_to_labels[label].get(domain_element)
+        return self.get_value('input','label',label,domain_element)
 
 def personal_Predicate_Formula(self,predicate,domain_element):
     return

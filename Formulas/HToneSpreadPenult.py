@@ -23,21 +23,21 @@ def personal_predicate_setup(self):
     self.predicates_list=['final']
 
 def personal_Output_Formula(self, copy, label, domain_element):
-    pred = self.input_to_functions['pred'].get(domain_element)
-    succ = self.input_to_functions['succ'].get(domain_element)
+    pred = self.get_value('input','function','pred',domain_element)
+    succ = self.get_value('input','function','succ',domain_element)
 
-    if copy == 1 and label == 's': return self.input_to_labels[label].get(domain_element)
+    if copy == 1 and label == 's': return self.get_value('input','label',label,domain_element)
     if copy == 1 and label == 'H':
-        if self.get_predicate_value('final',domain_element):  return False
-        elif self.get_output_value(1,'H',pred):
+        if self.get_value('input','predicate','final',domain_element):  return False
+        elif self.get_value( 1,'label','H',pred):
             return True
-        else: return self.input_to_labels['H'].get(domain_element)
+        else: return self.get_value('input','label','H',domain_element)
 
 def personal_Predicate_Formula(self,predicate,domain_element):
 
     if predicate == 'final':
-        succ = self.input_to_functions['succ'].get(domain_element)
-        if self.input_to_labels['%'].get(succ): return True
+        succ = self.get_value('input','function','succ',domain_element)
+        if self.get_value('input','label','%',succ): return True
         else: return False
 
     return

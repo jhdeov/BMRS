@@ -1,7 +1,7 @@
 
 from Input import Input
 
-word = 'aaaaa'
+word = 'sssHssssHsss'
 
 process=Input(word)
 
