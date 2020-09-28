@@ -47,13 +47,13 @@ When converting to my template, if a predicate or output function wants to retri
 * `level` can be the string “Input” or a copy in your copy set. I.e., is the value found in the input or some copy in the output?
 * `type` is either "label","function", or "predicate"
 * `name` is the name of the label/function/predicate, such as "voiced"
-* `domain_element` is the domain element.  The generic variable for the current domain element $$x$$ is just `domain_element` 
+* `domain_element` is the domain element.  The generic variable for the current domain element <img src="https://render.githubusercontent.com/render/math?math=x"> is just `domain_element` 
 
 For example,  the Chandlee & Jardine paper has the output function: <img src="https://render.githubusercontent.com/render/math?math=H_o(x) = %20 \text{if} %20 \square'(x) %20 \text{then} %20 \top %20 \text{else} %20 H(x)">. This function's meaning is decomposed into the following paraphrase:
-* In copy 1, assign the label "H" to some domain element $$x$$...
-* If the domain element $$x$$ has the label "stressed" in copy 1, ...
+* In copy 1, assign the label "H" to some domain element <img src="https://render.githubusercontent.com/render/math?math=x">...
+* If the domain element <img src="https://render.githubusercontent.com/render/math?math=x"> has the label "stressed" in copy 1, ...
 * then return true, 
-* else return the value of the label "H" in the input for the same domain element $$x$$
+* else return the value of the label "H" in the input for the same domain element <img src="https://render.githubusercontent.com/render/math?math=x">
 
 For my script, the above function is translated as follows:
 ```
