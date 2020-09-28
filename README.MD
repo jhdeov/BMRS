@@ -28,9 +28,41 @@ Replace `something` with the location and name of the BMRS file. Separate the lo
 In the `main.py` file, replace `word=something` with your own word that is an acceptable input for the function, e.g., `word="LLLL"`
 5) **Run** the main file
 6. The output for now is a long log of prints. The final printed element is a table that shows the input and output alongside all labels, predicates, and functions
+
 # Writing your own code
-For now, if you want to write your own code then do the following
-1) From the `Formulas` folder, copy the `Template.py` file and give it a unique name
-2) Modify it based on the instructions there. 
-3) Apply the steps from "Running an example"
+For now, my script can only interpret Python code. You have to manually convert your pen-and-paper BMRS system into a file that my script can run. The Python script is very similar to a pen-and-paper BMRS syste. If you want to apply your own BMRS system, do the following:
+1) Have your own pen-and-paper BMRS system.
+2) Make a copy of the `Template.py` file in the Formulas folder. Rename it anything you want, e.g., `MyBMRS.py'
+3) Follow the instructions in your copy of the `Template.py` file. You will need to specify:
+   * the set of input labels, e.g. ["a","b",...]
+   * the elements of the copy set, e.g. [1] or [1,2,...]
+   * if the input string is phonological segments ["t","s"], then specify features for each segment, .e.g, ["labial",...]
+   * the set of predicates (if any), e.g., ["final",..]
+   * the definition for every output function and predicate in a general template. 
+
+For functions and predicates, my template uses Python if-return-else clauses in a way that (nearly) iconically matches the pen-and-paper BMRS functions
+
+When converting to my template, if a predicate or output function wants to retrieve value of a label/function/predicate in the input/output, I set up a general function `self.get(level, type, name, domain_element)` where:
+
+* `level` can be the string “Input” or a copy in your copy set. I.e., is the value found in the input or some copy in the output?
+* `type` is either "label","function", or "predicate"
+* `name` is the name of the label/function/predicate, such as "voiced"
+* `domain_element` is the domain element.  The generic variable for the current domain element $$x$$ is just `domain_element` 
+
+For example,  the Chandlee & Jardine paper has the output function: $$H_o(x) = \text{if}~ \square'(x) ~ \text{then}~ \top ~\text{else}~ H(x)$$
+
+This function's meaning is decomposed into the following paraphrase:
+* In copy 1, assign the label "H" to some domain element $$x$$...
+* If the domain element $$x$$ has the label "stressed" in copy 1, ...
+* then return true, 
+* else return the value of the label "H" in the input for the same domain element $$x$$
+
+For my script:
+
+```
+if copy == 1 and label == "H":private bool Test()
+         if self.get(1,'label','stressed',domain_element): return True
+         else: return self.get("input","label","H",domain_element)`
+```
+
 
