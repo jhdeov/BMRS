@@ -1,9 +1,11 @@
 
 from Input import Input
 
-word = 'sssHssssHsss'
+word = 'LLHLLLLL'
 
-process=Input(word)
+bmrs = 'Formulas.IterStressHixk'
+
+process=Input(word,bmrs)
 
 
 

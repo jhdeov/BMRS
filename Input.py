@@ -1,15 +1,19 @@
-from Formulas.HToneSpreadPenult import *
+#from Formulas.HToneSpreadPenult import *
+
+from importlib import import_module
 
 class Input:
-    def __init__(self,word):
+    def __init__(self,word,bmrs):
+
+        self.importedModule = import_module(bmrs)
         self.word='#' + word + '%'
         self.copyset=None
         self.labels_list=[]
         self.labels_are_input = True
 
-        personal_setup(self)
+        self.importedModule.personal_setup(self)
         if self.labels_are_input: self.associate_symbols_to_labels()
-        else: personal_features(self)
+        else: self.importedModule.personal_features(self)
         self.functions_list = ['succ', 'pred']
 
 
@@ -28,7 +32,7 @@ class Input:
 
         #Intiailize the output structure to a matrix of Nothing, same for input predicates
         self.predicates_list=[]
-        personal_predicate_setup(self)
+        self.importedModule.personal_predicate_setup(self)
         self.create_input_predicates()
 
         self.create_output_labels()
@@ -269,7 +273,7 @@ class Input:
                     return self.input_to_predicates[name][domain_element]
                 print('going before the found for predicate: ' + str(name))
 
-                found = personal_Predicate_Formula(self, name, domain_element)
+                found = self.importedModule.personal_Predicate_Formula(self, name, domain_element)
                 print('returned predicate value was ' + str(found))
                 self.input_to_predicates[name][domain_element] = found
                 print('i set up the predicate:')
@@ -282,7 +286,7 @@ class Input:
                     print("I entered the not-null escape")
                     return self.output_to_labels[level][name][domain_element]
                 else:
-                    found = personal_Output_Formula(self, level, name, domain_element)
+                    found = self.importedModule.personal_Output_Formula(self, level, name, domain_element)
                     print('returned output value was ' + str(found))
                     self.output_to_labels[level][name][domain_element] = found
                     return found
@@ -292,7 +296,7 @@ class Input:
                     print("I entered the not-null escape")
                     return self.output_to_functions[level][name][domain_element]
                 else:
-                    found = personal_Output_Formula(self, level, name, domain_element)
+                    found = self.importedModule.personal_Output_Formula(self, level, name, domain_element)
                     print('returned output value was ' + str(found))
                     self.output_to_functions[level][name][domain_element] = found
                     return found
