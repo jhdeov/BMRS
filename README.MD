@@ -49,7 +49,7 @@ When converting to my template, if a predicate or output function wants to retri
 * `name` is the name of the label/function/predicate, such as "voiced"
 * `domain_element` is the domain element.  The generic variable for the current domain element $$x$$ is just `domain_element` 
 
-For example,  the Chandlee & Jardine paper has the output function: $$H_o(x) = \text{if}~ \square'(x) ~ \text{then} ~ \top ~ \text{else} ~ H(x)$$
+For example,  the Chandlee & Jardine paper has the output function: $H_o(x) = \text{if}~ \square'(x) ~ \text{then} ~ \top ~ \text{else} ~ H(x)$
 
 This function's meaning is decomposed into the following paraphrase:
 * In copy 1, assign the label "H" to some domain element $$x$$...
