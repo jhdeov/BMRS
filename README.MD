@@ -61,7 +61,7 @@ This function's meaning is decomposed into the following paraphrase:
 
 For my script, the above function is translated as follows:
 ```
-if copy == 1 and label == "H":private bool Test()
+if copy == 1 and label == "H":
          if self.get(1,'label','stressed',domain_element): return True
          else: return self.get("input","label","H",domain_element)`
 ```
