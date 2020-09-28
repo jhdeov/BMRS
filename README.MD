@@ -49,15 +49,13 @@ When converting to my template, if a predicate or output function wants to retri
 * `name` is the name of the label/function/predicate, such as "voiced"
 * `domain_element` is the domain element.  The generic variable for the current domain element $$x$$ is just `domain_element` 
 
-For example,  the Chandlee & Jardine paper has the output function: <img src="https://render.githubusercontent.com/render/math?math=H_o(x) = \text{if} %20 \square'(x) %20 \text{then} %20 \top %20 \text{else} %20 H(x)"> 
-This function's meaning is decomposed into the following paraphrase:
+For example,  the Chandlee & Jardine paper has the output function: <img src="https://render.githubusercontent.com/render/math?math=H_o(x) = %20 \text{if} %20 \square'(x) %20 \text{then} %20 \top %20 \text{else} %20 H(x)">. This function's meaning is decomposed into the following paraphrase:
 * In copy 1, assign the label "H" to some domain element $$x$$...
 * If the domain element $$x$$ has the label "stressed" in copy 1, ...
 * then return true, 
 * else return the value of the label "H" in the input for the same domain element $$x$$
 
-For my script:
-
+For my script, the above function is translated as follows:
 ```
 if copy == 1 and label == "H":private bool Test()
          if self.get(1,'label','stressed',domain_element): return True
