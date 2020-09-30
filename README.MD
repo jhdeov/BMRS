@@ -26,6 +26,7 @@ In the `main.py` file, find the line `bmrs = something`.
 Replace `something` with the location and name of the BMRS file. Separate the location and name with a dot,  `bmrs = 'Formulas.IterStressHixk'`
 4) **Make** an example word
 In the `main.py` file, replace `word=something` with your own word that is an acceptable input for the function, e.g., `word="LLLL"`
+If the function accepts feature bundles such as for case, then use represent the entire input word as a list, and make the feature bundle a list inside a list, e.g, `word = list('cow') + [  ['nom','sg'] ]`
 5) **Run** the main file
 6. The output for now is a long log of prints. The final printed element is a table that shows the input and output alongside all labels, predicates, and functions
 
