@@ -29,7 +29,7 @@ class Input:
 
         self.create_input_display()
 
-        self.print_display()
+
 
         #Intiailize the output structure to a matrix of Nothing, same for input predicates
         self.predicates_list=[]
@@ -108,7 +108,6 @@ class Input:
                 segment_features = self.symbol_to_labels[segment]
             for feature in segment_features:
                 self.input_to_labels[feature][index] = True
-            print(type(segment_features))
 
     def create_input_predicates(self):
         self.input_to_predicates={}
@@ -191,18 +190,19 @@ class Input:
 
     def fill_output(self):
 
-        print('will start filling table')
+        print('This is a log of all evaluations.')
         for copy in self.copyset:
-            print("will start filling for copy",copy)
+            print("\tEvaluating elements in Copy ",copy)
             ##Will do all labels isntead ofjust changed labels
             #for label in self.changed_labels[copy]:
             for label in self.labels_list:
-                print('start filling for label ' + str(label))
+                print('\t\tEvaluating elements with the label ' + str(label))
                 for domain_element in self.domain_elements:
-                    print('start filling for element ' + str(domain_element))
+                    print('\t\t\tEvaluating for the element ' + str(domain_element))
                     if self.output_to_labels[copy][label][domain_element] is None:
                         #self.get_output_value(copy, label, domain_element)
                         self.get_value(copy, 'label',label, domain_element)
+                    print()
 
     # def get_output_value(self,copy,label,domain_element):
     #     """ get value returns the value of an output node just in case the output formula references another output formula """
@@ -253,26 +253,29 @@ class Input:
 
     def get_value(self,level,type,name,domain_element):
         if not ( level in ['input'] or level in self.copyset):
-            print("error, wrong level given to get_value. Must be `input' or a copy")
+            print("Error, wrong level given to get_value. Must be `input' or a copy")
             print(f'{level}')
             exit()
         if not (type in ['label','function','predicate']):
-            print("error, wrong type given to get_value. Must be 'label', 'function', or 'predicate'")
+            print("Error, wrong type given to get_value. Must be 'label', 'function', or 'predicate'")
             print(f'{type}')
 
             exit()
         if (type == 'label' and name not in self.input_to_labels) or \
             (type == 'function' and name not in self.input_to_functions) or \
             (type == 'predicate' and name not in self.input_to_predicates):
-            print(f'error, the {type} {name} is not an existing {type}')
+            print(f'Error, the {type} {name} is not an existing {type}')
             exit()
 
-        print("entered get value; let's check if the domain element is None or outside the word")
-        if domain_element is None: return False
-        elif domain_element<0 or domain_element>=len(self.word): return False
-        print("Not none")
 
-        print(f'Doing get for level {level}, type {type}, name {name}, domain element {domain_element} for input symbol'
+        if domain_element is None: return False
+        if domain_element not in self.domain_elements:
+            print("\t\t\t\tThe domain element is None or does not exist in the domain")
+            print("\t\t\t\tReturning value of False")
+            return False
+
+
+        print(f'\t\t\t\tEvaluating get for level {level}, type {type}, name {name}, domain element {domain_element} for input symbol '
               f'{self.word[domain_element]}')
 
 
@@ -281,31 +284,30 @@ class Input:
             elif type =="function": return self.input_to_functions[name].get(domain_element)
             elif type == 'predicate':
                 if self.input_to_predicates[name].get(domain_element) is not None:
-                    print("I entered the not-null escape")
+                    print("\t\t\t\t\tThe value was already evaluated in a previous get")
                     return self.input_to_predicates[name][domain_element]
-                print('going before the found for predicate: ' + str(name))
+                print('\t\t\t\t\tWill evaluate the predicate using the user predicate list for: '  + str(name))
 
                 found = self.importedModule.personal_Predicate_Formula(self, name, domain_element)
-                print('returned predicate value was: ' + str(found))
+                print('\t\t\t\t\tReturned predicate value was: ' + str(found))
                 if found is None:
-                    print('the value is None so its set to false')
+                    print('\t\t\t\t\tThe value is None so its set to false')
                     self.input_to_predicates[name][domain_element] = False
                 else:
                     self.input_to_predicates[name][domain_element] = found
-                print('i set up the predicate:')
-                print(self.input_to_predicates)
                 return found
 
         if level in self.copyset:
             if type == 'label':
                 if self.output_to_labels[level][name].get(domain_element) is not None:
-                    print("I entered the not-null escape")
+                    print("\t\t\t\t\tThe value was already evaluated in a previous get")
                     return self.output_to_labels[level][name][domain_element]
                 else:
+                    print('\t\t\t\t\tWill evaluate the output label using the user label list for: ' + str(name))
                     found = self.importedModule.personal_Output_Formula(self, level, name, domain_element)
-                    print('returned output value was ' + str(found))
+                    print('\t\t\t\t\tReturned output label value was: ' + str(found))
                     if found is None:
-                        print('the value is None so its set to false')
+                        print('\t\t\t\t\tThe value is None so its set to false')
                         self.output_to_labels[level][name][domain_element] = False
                     else:
                         self.output_to_labels[level][name][domain_element] = found
@@ -313,13 +315,13 @@ class Input:
 
             elif type =="function":
                 if self.output_to_functions[level][name].get(domain_element) is not None:
-                    print("I entered the not-null escape")
+                    print("\t\t\t\t\tThe value was already evaluated in a previous get")
                     return self.output_to_functions[level][name][domain_element]
                 else:
                     found = self.importedModule.personal_Output_Formula(self, level, name, domain_element)
-                    print('returned output value was ' + str(found))
+                    print('\t\t\t\t\tReturned output function value was: ' + str(found))
                     if found is None:
-                        print('the value is None so its set to false')
+                        print('\t\t\t\t\tThe value is None so its set to false')
                         self.output_to_functions[level][name][domain_element]  = False
                     else:
                         self.output_to_functions[level][name][domain_element]  = found
