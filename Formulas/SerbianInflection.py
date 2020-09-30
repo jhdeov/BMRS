@@ -4,12 +4,12 @@ Replace TO DO with your own code
 
 def personal_setup(self):
 
-    self.labels_list = ['#', '%',
-                        '+',
+    self.input_symbols = ['+',
                         'a', 'e', 'i', 'o', 'u',
                         'b', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'r', 's', 't', 'v', 'z',
-                        '[nom]', '[gen]', '[dat]', '[acc]', '[voc]', '[ins]', '[loc]', '[sg]', '[pl]'
-                        ]
+                        '[nom]', '[gen]', '[dat]', '[acc]', '[voc]', '[ins]', '[loc]', '[sg]', '[pl]']
+    self.labels_list = self.input_symbols + ['#', '%' ]
+
     #Need to eventually add unicode support for IPA symbols
     #I also define a for lopp over segments in the personal_output_formulas method
     # So make sure that the labels_list and the items in there are consistent

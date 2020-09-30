@@ -3,6 +3,7 @@ Taken from Jane-Adam paper, example 2
 """
 
 def personal_setup(self):
+    self.input_symbols = list('sH')
     self.labels_list = list('sH#%')
     self.copyset = [1]
     self.labels_are_input=False

@@ -3,6 +3,7 @@ Doesn't work because a nasal doesnt lose any of its underlying places
 """
 
 def personal_setup(self):
+    self.input_symbols = list('ptkbdgmnNaiu')
     self.labels_list = ['#', '%', 'voiced', 'labial', 'coronal', 'dorsal', 'low', 'high', 'front', 'back', 'consonant', 'vowel',
                         'nasal']
     self.copyset = [1]

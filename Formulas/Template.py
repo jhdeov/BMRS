@@ -3,21 +3,21 @@ Replace TO DO with your own code
 """
 
 def personal_setup(self):
-    """Make sure that you include the symbols # and % in your list of labels"""
-    self.labels_list = ['#', '%',  "REPLACE ME" ]
+    """List what characters you accept as part of your input string;
+     individual features inside a feature bundle are fine"""
+    self.input_symbols = ['a','b','nom', "REPLACE ME"]
 
-    """If you wil represent your input strings with symbols that differ from your labels, e.g., phonological features 
-    labels and phonological segments for your strings, then specify your list of segments"""
-    self.input_symbols = ["REPLACE ME"]
+    """List what input labels you use. make sure that you include the symbols # and % in your list of labels"""
+    self.labels_list = ['#', '%',  "REPLACE ME" ]
 
     """List the copies in your copy set, e.g., [1] or [1,2] or [1,2,3] or etc."""
     self.copyset = "REPLACE ME"
     #Example:
     #self.copyset = [1]
-    """Wil you write your input strings using the above labels? if yes, then assign the following boolean to true 
+    """Will you write your input strings using the above labels? if yes, then assign the following boolean to true 
     Otherwise, assign it to false
     Generally, assign the boolean to true if you will use generic symbols like {a,b,c,...}, but set it to false if 
-    you will use phonological faetures but represent your input strings with letters"""
+    you will use phonological features but represent your input strings with letters"""
 
     self.labels_are_input=  "REPLACE ME"
     #Example:

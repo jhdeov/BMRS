@@ -1,5 +1,5 @@
 
-from Input import Input
+from BMRS import Input
 
 word = list('zavod+') + [ ['[nom]','[pl]'] ]
 

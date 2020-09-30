@@ -18,7 +18,17 @@ class Input:
         else: self.importedModule.personal_features(self)
         self.functions_list = ['succ', 'pred']
 
-
+        #Verify that the input string uses only legal characters
+        for symbol in word:
+            if type(symbol) is str and symbol not in self.input_symbols:
+                    print(f'Error, your input string has an illegal character ' + str(symbol))
+                    exit()
+            #More bookkeeping if the input symbol is a feature bundle
+            elif type(symbol) is list:
+                for feature in symbol:
+                    if feature not in self.input_symbols:
+                        print(f'Error, your input string has an illegal character ' + str(symbol))
+                        exit()
         #Given the above set of IPA symbols and features, we map the input word into a matrix of feature values and
         #successor/predecessor values
         self.create_domain()

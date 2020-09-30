@@ -3,8 +3,8 @@ input strings can only be L's and H's
 """
 
 def personal_setup(self):
-    self.labels_list = ['#', '%', 'H', 'L','stress']
     self.input_symbols = ['H','L']
+    self.labels_list = ['#', '%', 'H', 'L','stress']
 
     self.copyset = [1]
     self.labels_are_input=False

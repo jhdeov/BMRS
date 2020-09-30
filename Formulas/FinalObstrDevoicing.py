@@ -3,6 +3,7 @@ Restricted alphabet of [p,t,n,e]
 """
 
 def personal_setup(self):
+    self.input_symbols = list('tend')
     self.labels_list = ['#', '%', 'voiced', 'consonant', 'sonorant','vowel']
     self.copyset = [1]
     self.labels_are_input=False
