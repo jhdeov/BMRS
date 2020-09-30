@@ -5,6 +5,11 @@ Replace TO DO with your own code
 def personal_setup(self):
     """Make sure that you include the symbols # and % in your list of labels"""
     self.labels_list = ['#', '%',  "REPLACE ME" ]
+
+    """If you wil represent your input strings with symbols that differ from your labels, e.g., phonological features 
+    labels and phonological segments for your strings, then specify your list of segments"""
+    self.input_symbols = ["REPLACE ME"]
+
     """List the copies in your copy set, e.g., [1] or [1,2] or [1,2,3] or etc."""
     self.copyset = "REPLACE ME"
     #Example:

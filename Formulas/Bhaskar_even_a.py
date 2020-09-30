@@ -2,6 +2,7 @@
 
 def personal_setup(self):
     self.labels_list = list('abcd#%')
+    self.input_symbols = list('abcd')
     self.copyset = [1,2]
     self.labels_are_input=True
 

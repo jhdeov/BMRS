@@ -1,9 +1,9 @@
 
 from Input import Input
 
-word = 'LLHLLLLL'
+word = list('zavod+') + [ ['[nom]','[pl]'] ]
 
-bmrs = 'Formulas.IterStressHixk'
+bmrs = 'Formulas.SerbianInflection'
 
 process=Input(word,bmrs)
 

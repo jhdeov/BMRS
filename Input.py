@@ -6,8 +6,10 @@ class Input:
     def __init__(self,word,bmrs):
 
         self.importedModule = import_module(bmrs)
-        self.word='#' + word + '%'
+        if type(word) is str: word = list(word)
+        self.word=['#'] + word + ['%']
         self.copyset=None
+        self.input_symbols = []
         self.labels_list=[]
         self.labels_are_input = True
 
@@ -15,7 +17,6 @@ class Input:
         if self.labels_are_input: self.associate_symbols_to_labels()
         else: self.importedModule.personal_features(self)
         self.functions_list = ['succ', 'pred']
-
 
 
         #Given the above set of IPA symbols and features, we map the input word into a matrix of feature values and
@@ -77,12 +78,13 @@ class Input:
     #     # self.changed_functions[1] = []
 
     def associate_symbols_to_labels(self):
-
+        #This is redundant if your inputs are the same as your labels
+        #But we need to do this so that both phonological strings and non-featured strings will work with the same
+        #create_input_labels method
         self.symbol_to_labels = {}
         for label in self.labels_list:
             self.symbol_to_labels[label] = frozenset([label])
         self.labels_to_symbols = {v: k for k, v in self.symbol_to_labels.items()}
-
 
     def create_domain(self):
         self.domain_size = len(self.word)
@@ -96,9 +98,17 @@ class Input:
             segment = self.word[index]
             for label in self.labels_list:
                 self.input_to_labels[label][index] = False
-            segment_features = self.symbol_to_labels[segment]
+            #Need to do some tricks if the domain element has a list of features, e.g., a feature bundle of case and number
+            #Check if the segment is a feature bundle; if yes, then give it each of those features via for-loop
+            segment_features=frozenset([])
+            if type(segment) is list:
+                for feature in segment:
+                    segment_features = segment_features.union(self.symbol_to_labels[feature])
+            else:
+                segment_features = self.symbol_to_labels[segment]
             for feature in segment_features:
                 self.input_to_labels[feature][index] = True
+            print(type(segment_features))
 
     def create_input_predicates(self):
         self.input_to_predicates={}
@@ -139,8 +149,8 @@ class Input:
 
     def create_input_display(self):
         self.display = []
-        first_line = [''] + list(self.word)
-        second_line = [''] + list(range(self.domain_size))
+        first_line = [''] + self.word
+        second_line = [''] + self.domain_elements
         self.display = [first_line, second_line]
         self.display.append(['-'] * (self.domain_size + 1))
         for label in self.input_to_labels.keys():
@@ -182,7 +192,6 @@ class Input:
     def fill_output(self):
 
         print('will start filling table')
-        print('I assume the output doesnt contain word boundaries')
         for copy in self.copyset:
             print("will start filling for copy",copy)
             ##Will do all labels isntead ofjust changed labels
@@ -191,8 +200,6 @@ class Input:
                 print('start filling for label ' + str(label))
                 for domain_element in self.domain_elements:
                     print('start filling for element ' + str(domain_element))
-                    if label in ['#','%']:
-                        self.output_to_labels[copy][label][domain_element] = False
                     if self.output_to_labels[copy][label][domain_element] is None:
                         #self.get_output_value(copy, label, domain_element)
                         self.get_value(copy, 'label',label, domain_element)
@@ -254,6 +261,11 @@ class Input:
             print(f'{type}')
 
             exit()
+        if (type == 'label' and name not in self.input_to_labels) or \
+            (type == 'function' and name not in self.input_to_functions) or \
+            (type == 'predicate' and name not in self.input_to_predicates):
+            print(f'error, the {type} {name} is not an existing {type}')
+            exit()
 
         print("entered get value; let's check if the domain element is None or outside the word")
         if domain_element is None: return False
@@ -274,8 +286,12 @@ class Input:
                 print('going before the found for predicate: ' + str(name))
 
                 found = self.importedModule.personal_Predicate_Formula(self, name, domain_element)
-                print('returned predicate value was ' + str(found))
-                self.input_to_predicates[name][domain_element] = found
+                print('returned predicate value was: ' + str(found))
+                if found is None:
+                    print('the value is None so its set to false')
+                    self.input_to_predicates[name][domain_element] = False
+                else:
+                    self.input_to_predicates[name][domain_element] = found
                 print('i set up the predicate:')
                 print(self.input_to_predicates)
                 return found
@@ -288,7 +304,11 @@ class Input:
                 else:
                     found = self.importedModule.personal_Output_Formula(self, level, name, domain_element)
                     print('returned output value was ' + str(found))
-                    self.output_to_labels[level][name][domain_element] = found
+                    if found is None:
+                        print('the value is None so its set to false')
+                        self.output_to_labels[level][name][domain_element] = False
+                    else:
+                        self.output_to_labels[level][name][domain_element] = found
                     return found
 
             elif type =="function":
@@ -298,7 +318,11 @@ class Input:
                 else:
                     found = self.importedModule.personal_Output_Formula(self, level, name, domain_element)
                     print('returned output value was ' + str(found))
-                    self.output_to_functions[level][name][domain_element] = found
+                    if found is None:
+                        print('the value is None so its set to false')
+                        self.output_to_functions[level][name][domain_element]  = False
+                    else:
+                        self.output_to_functions[level][name][domain_element]  = found
                     return found
 
 

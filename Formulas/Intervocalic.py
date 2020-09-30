@@ -1,6 +1,7 @@
 """Intervocalic voicing of consonants"""
 
 def personal_setup(self):
+    self.input_symbols=['p','t','k','b','d','g','a','i','u']
     self.labels_list = ['voiced', 'labial', 'coronal', 'dorsal', 'low', 'high', 'front', 'back', 'consonant', 'vowel',
                         '#', '%']
     self.copyset = [1]
