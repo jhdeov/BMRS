@@ -20,12 +20,11 @@ Tutorial follows.
 |Intervocalic voicing|`Intervocalic.py`|Personal|
 |Iterative stress|`IterStressHixk.py`|Chandlee & Jardine ms|
 
-2) **Pick** a BMRS file that you want to run, e.g., `IterStressHixk.py`in the folder `Formulas`
+2) **Pick** a BMRS file that you want to run, e.g., `IterStressHixk.py`in the folder `Formulas`.
 3) **Apply** that file:
 In the `main.py` file, find the line `bmrs = something`. 
 Replace `something` with the location and name of the BMRS file. Separate the location and name with a dot,  `bmrs = 'Formulas.IterStressHixk'`.
-4) **Make** an example word
-In the `main.py` file, replace `word=something` with your own word that is an acceptable input for the function, e.g., `word="LLLL"`. If the function accepts feature bundles such as for case, then use represent the entire input word as a list, and make the feature bundle a list inside a list, e.g, `word = list('cow') + [  ['nom','sg'] ]`.
+4) **Make** an example word. In the `main.py` file, replace `word=something` with your own word that is an acceptable input for the function, e.g., `word="LLLL"`. If the function accepts feature bundles such as for case, then use represent the entire input word as a list, and make the feature bundle a list inside a list, e.g, `word = list('cow') + [  ['nom','sg'] ]`.
 5) **Run** the main file
 6. The output for now is a long log of prints. The final printed element is a table that shows the input and output alongside all labels, predicates, and functions.
 
@@ -40,14 +39,14 @@ For now, my script can only interpret Python code. You have to manually convert 
    * the set of predicates (if any), e.g., ["final",..]
    * the definition for every output function and predicate in a general template. 
 
-For functions and predicates, my template uses Python if-return-else clauses in a way that (nearly) iconically matches the pen-and-paper BMRS functions
+For functions and predicates, my template uses Python if-return-else clauses in a way that (nearly) iconically matches the pen-and-paper BMRS functions.
 
-When converting to my template, if a predicate or output function wants to retrieve value of a label/function/predicate in the input/output, I set up a general function `self.get(level, type, name, domain_element)` where:
+When converting to my template, if a predicate or output function wants to retrieve value of a label/function/predicate in the input/output, I set up a general function `self.get_value(level, type, name, domain_element)` where:
 
-* `level` can be the string “Input” or a copy in your copy set. I.e., is the value found in the input or some copy in the output?
-* `type` is either "label","function", or "predicate"
-* `name` is the name of the label/function/predicate, such as "voiced"
-* `domain_element` is the domain element.  The generic variable for the current domain element <img src="https://render.githubusercontent.com/render/math?math=x"> is just `domain_element` 
+* `level` can be the string “Input” or a copy index in your copy set, e.g. `self.get_value('input',...)` or `self.get_value(1,...)`. This determines whether the value is found in the input or some copy in the output.
+* `type` is either "label","function", or "predicate".
+* `name` is the name of the label/function/predicate, such as "voiced". 
+* `domain_element` is the domain element.  The generic variable for the current domain element <img src="https://render.githubusercontent.com/render/math?math=x"> is just `domain_element`.
 
 For example,  the Chandlee & Jardine paper has the output function: 
 
