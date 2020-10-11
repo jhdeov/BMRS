@@ -1,4 +1,4 @@
-"""Iterative epenthesis for Iraqi Arabic with right-to-left parsing
+"""Iterative epenthesis for CVC language  with right-to-left parsing
 Source is AMP 2020 poster/proceedings
 """
 

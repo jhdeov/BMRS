@@ -1,4 +1,4 @@
-"""Iterative epenthesis for Cairene Arabic with left-to-right parsing
+"""Iterative epenthesis for CVC language with left-to-right parsing
 Source is AMP 2020 poster/proceedings
 """
 
