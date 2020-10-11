@@ -1,9 +1,9 @@
 
 from BMRS import Input
 
-word = list('zavod+') + [ ['[nom]','[pl]'] ]
+word = 'ttfffddakab'
 
-bmrs = 'Formulas.SerbianInflection'
+bmrs = 'Formulas.IterativeEpenthesisCaireneArabicLR'
 
 process=Input(word,bmrs)
 
