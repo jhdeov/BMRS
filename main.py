@@ -1,9 +1,9 @@
 
 from BMRS import Input
 
-word = 'ttfffddakab'
+word = '-a-+-a-B--a'
 
-bmrs = 'Formulas.IterativeEpenthesisCaireneArabicLR'
+bmrs = 'Formulas.HarmonyTurkana'
 
 process=Input(word,bmrs)
 

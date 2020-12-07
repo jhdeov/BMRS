@@ -42,6 +42,9 @@ def personal_Output_Formula(self, copy, label, domain_element):
     pred_of_pred =  self.get_value('input', 'function', 'pred', pred)
     succ = self.get_value('input', 'function', 'succ', domain_element)
 
+    u^1(x) = if dat/loc_sg(x) return T else u(x)
+    u ^ 2(x) = if dat / loc_sg(x) return T else u^1(x)
+
     if copy is 1 and label == 'u':
         if self.get_value('input', 'predicate', '[dat/loc sg]', domain_element): return True
         else: return self.get_value('input', 'label', 'u', domain_element)

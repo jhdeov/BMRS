@@ -1,4 +1,5 @@
-"""Bhaskar: even-numbered 'a' is turned to 'b'. Insert a final 'c' if word is even, otherwise insert a 'd'. """
+"""Bhaskar: even-numbered 'a' is turned to 'b'.
+ Insert a final 'c' if word is even, otherwise insert a 'd'. """
 
 def personal_setup(self):
     self.input_symbols = list('abcd')

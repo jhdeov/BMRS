@@ -126,7 +126,7 @@ def personal_Predicate_Formula(self,predicate,domain_element):
         if self.get_value('input','label','%',succ): return True
         else: return False
     if predicate == 'initial':
-        if self.get_value('input','label','%',pred): return True
+        if self.get_value('input','label','#',pred): return True
         else: return False
     if predicate == 'syll':
         if self.get_value('input','label','L',domain_element): return True

@@ -299,7 +299,7 @@ class Input:
                 print('\t\t\t\t\tWill evaluate the predicate using the user predicate list for: '  + str(name))
 
                 found = self.importedModule.personal_Predicate_Formula(self, name, domain_element)
-                print('\t\t\t\t\tReturned predicate value was: ' + str(found))
+                print('\t\t\t\t\tReturned predicate value for '+str(name)+' was: ' + str(found))
                 if found is None:
                     print('\t\t\t\t\tThe value is None so its set to false')
                     self.input_to_predicates[name][domain_element] = False
@@ -367,6 +367,7 @@ class Input:
                     if self.output_to_labels[copy][label][element]==True: features.append(label)
                 features=frozenset(features)
                 if len(features)>0:
+                    print("Will output the symbol at copy-element "+str(copy)+" "+str(element))
                     self.output_segments[copy][element]=self.labels_to_symbols[features]
                 else: self.output_segments[copy][element]=''
 
