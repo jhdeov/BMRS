@@ -1,9 +1,9 @@
 
 from BMRS import Input
 
-word = '-a-+-a-B--a'
+word = 'katabtlhul'
 
-bmrs = 'Formulas.HarmonyTurkana'
+bmrs = 'Formulas.IterativeEpenthesisCVCLROutput'
 
 process=Input(word,bmrs)
 

@@ -1,5 +1,5 @@
 """Iterative epenthesis for CVC language  with right-to-left parsing
-Source is AMP 2020 poster/proceedings
+Source is AMP 2020 poster
 """
 
 def personal_setup(self):
@@ -44,7 +44,7 @@ def personal_Predicate_Formula(self,predicate,domain_element):
         if self.get_value('input','label','%',succ): return True
 
 
-    #I follow the definition in future AMP proceeding
+    #I follow the definition in  AMP poster (canceled Sigmorphon paper)
     elif predicate == 'L':
         #selects a consonant which precedes a vowel
         if self.get_value('input','predicate','C',domain_element) \

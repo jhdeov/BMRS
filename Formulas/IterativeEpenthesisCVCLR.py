@@ -1,5 +1,5 @@
 """Iterative epenthesis for CVC language with left-to-right parsing
-Source is AMP 2020 poster/proceedings
+Source is AMP 2020 poster
 """
 
 def personal_setup(self):
@@ -61,7 +61,7 @@ def personal_Predicate_Formula(self,predicate,domain_element):
         if self.get_value('input','label','%',succ): return True
 
 
-    #I follow the definition in future AMP proceeding
+    #I follow the definition in  AMP poster (canceled Sigmorphon paper)
     elif predicate == 'R':
         #select a final segment, every word ends in a syllable
         if self.get_value('input','predicate','final',domain_element): return True

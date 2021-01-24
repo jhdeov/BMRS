@@ -27,18 +27,19 @@ def personal_features(self):
     """If you will repesent your input strings with symbols, but use features for your labels,
     then fill this table with your segment-to-feature decomposition. See the example of Intervocalic voicing for
      an example.
+     Make sure there's a 1-to-1 match between bundles of input labels and between input symbols
      Make sure you keep the word boundares
      Make sure to use frozenset over a list"""
-    self.segment_to_labels = {
+    self.symbol_to_labels = {
         '#': frozenset(['#']),
         '%': frozenset(['%']),
-        "REPLACE ME": frozent([ "REPLACE ME"]),
+        "REPLACE ME": frozenset([ "REPLACE ME"]),
     #Example:
     #    'p': frozenset(['labial', 'consonant']),
      #   'L\'': frozenset(['L', 'stress']),
 
     }
-    self.labels_to_symbols = {v: k for k, v in self.segment_to_labels.items()}
+    self.labels_to_symbols = {v: k for k, v in self.symbol_to_labels.items()}
 
 def personal_predicate_setup(self):
     """Give a list of your predicates as string"""
