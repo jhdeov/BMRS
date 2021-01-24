@@ -10,7 +10,7 @@ This is a implementation in progress.
 
 # Running an example
 Tutorial follows.
-1) **Working formulas**: I have implemented the following working programs:
+1) **Working formulas**: I have implemented differnet logical transsductions. These include the following working programs:
 
 |Function|File|Source|
 |-|-|-|
