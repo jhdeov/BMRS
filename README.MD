@@ -24,27 +24,27 @@ Tutorial follows.
 3) **Apply** that file:
 In the `main.py` file, find the line `bmrs = something`. 
 Replace `something` with the location and name of the BMRS file. Separate the location and name with a dot,  `bmrs = 'Formulas.IterStressHixk'`.
-4) **Make** an example word. In the `main.py` file, replace `word=something` with your own word that is an acceptable input for the function, e.g., `word="LLLL"`. If the function accepts feature bundles such as for case, then use represent the entire input word as a list, and make the feature bundle a list inside a list, e.g, `word = list('cow') + [  ['nom','sg'] ]`.
+4) **Make** an example word. In the `main.py` file, replace `word=something` with your own word that is an acceptable input for the function, e.g., `word="LLLL"`. If the function accepts feature bundles such as for case, then represent the entire input word as a list, and make the feature bundle a list inside a list, e.g, `word = list('cow') + [  ['nom','sg'] ]`.
 5) **Run** the main file
 6. The output for now is a long log of prints. The final printed element is a table that shows the input and output alongside all labels, predicates, and functions.
 
 # Writing your own code
-For now, my script can only interpret Python code. You have to manually convert your pen-and-paper BMRS system into a file that my script can run. The Python script is very similar to a pen-and-paper BMRS syste. If you want to apply your own BMRS system, do the following:
+For now, my script can only interpret Python code. You have to manually convert your pen-and-paper BMRS system into a file that my script can run. The Python script is very similar to a pen-and-paper BMRS system. If you want to apply your own BMRS system, do the following:
 1) Have your own pen-and-paper BMRS system.
 2) Make a copy of the `Template.py` file in the Formulas folder. Rename it anything you want, e.g., `MyBMRS.py'
 3) Follow the instructions in your copy of the `Template.py` file. You will need to specify:
    * the set of input labels, e.g. ["a","b",...]
    * the elements of the copy set, e.g. [1] or [1,2,...]
-   * if the input string is phonological segments ["t","s"], then specify features for each segment, .e.g, ["labial",...]
+   * if the input string is phonological segments ["t","s"], then specify features for each segment, e.g., ["labial",...]
    * the set of predicates (if any), e.g., ["final",..]
    * the definition for every output function and predicate in a general template. 
 
 For functions and predicates, my template uses Python if-return-else clauses in a way that (nearly) iconically matches the pen-and-paper BMRS functions.
 
-When converting to my template, if a predicate or output function wants to retrieve value of a label/function/predicate in the input/output, I set up a general function `self.get_value(level, type, name, domain_element)` where:
+When converting to my template, if a predicate or output function wants to retrieve the value of a label/function/predicate in the input/output, I set up a general function `self.get_value(level, type, name, domain_element)` where:
 
 * `level` can be the string “Input” or a copy index in your copy set, e.g. `self.get_value('input',...)` or `self.get_value(1,...)`. This determines whether the value is found in the input or some copy in the output.
-* `type` is either "label","function", or "predicate".
+* `type` is either "label", "function", or "predicate".
 * `name` is the name of the label/function/predicate, such as "voiced". 
 * `domain_element` is the domain element.  The generic variable for the current domain element <img src="https://render.githubusercontent.com/render/math?math=x"> is just `domain_element`.
 
