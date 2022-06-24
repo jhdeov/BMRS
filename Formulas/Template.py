@@ -123,6 +123,8 @@ def personal_Predicate_Formula(self,predicate,domain_element):
     pred = self.get_value('input','function','pred',domain_element)
     succ = self.get_value('input','function','succ',domain_element)
 
+
+
     if predicate == 'final':
         if self.get_value('input','label','%',succ): return True
         else: return False

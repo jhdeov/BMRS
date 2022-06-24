@@ -4,10 +4,18 @@ from importlib import import_module
 
 class Input:
     def __init__(self,word,bmrs):
-
+        #Given a word and bmrs file, we start to set up the system
         self.importedModule = import_module(bmrs)
+
+
+        # if the input word was a string like "LLL", then we turn it into a list with word boundaries
+        # ["#, "L", "L", "L", "%"]
+        # We do this so that we have a single representation for string inputs and feature inputs
         if type(word) is str: word = list(word)
         self.word=['#'] + word + ['%']
+
+        ####
+        # Before we read the BMRS file, we set up the attributes that will be filled by the BMRS file
         self.copyset=None
         self.input_symbols = []
         self.labels_list=[]
