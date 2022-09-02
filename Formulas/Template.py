@@ -50,7 +50,7 @@ def personal_predicate_setup(self):
 
 
 def personal_Output_Formula(self, copy, label, domain_element):
-    """For every output function, decompose it into the following sequence of if-else clauses:
+    """For every output formula, decompose it into the following sequence of if-else clauses:
     if copy is X and label == Y:
         if Z:...
 
