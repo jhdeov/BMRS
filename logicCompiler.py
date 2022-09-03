@@ -54,7 +54,7 @@ class logicCompilation:
         #Given the above set of IPA symbols and features, we map the input graph and output graph into a matrix of feature values and
         #successor/predecessor values.
         self.create_domain()
-        self.create_nodes()
+        self.graphNodeList = self.create_nodesAsList([0] + self.copyset)
         self.create_labels()
         self.create_functions()
 
@@ -67,7 +67,7 @@ class logicCompilation:
         self.create_input_display()
 
         # Fill up the output graph with succ/pred functions if output-preserving
-        self.preprocessOutputFunctions()
+        self.initializeOutputFunctions()
 
         self.fill_output()
 
@@ -76,7 +76,7 @@ class logicCompilation:
 
         #turn features back into segments and add to display
         self.create_output_segments()
-        self.create_output_segments_display()
+        self.create_output_segments_String()
 
         sys.stdout = old_stdout
         log_file.close()
@@ -96,12 +96,18 @@ class logicCompilation:
     def create_domain(self):
         self.domain_size = len(self.word)
         self.domain_elements = list(range(self.domain_size))
-    def create_nodes(self):
-        self.graphNodeList = []
-        for level in ([0] + (self.copyset)):
+    def create_nodesAsList(self, levels):
+        nodeList = []
+        for level in levels:
             for domain_element in range(self.domain_size):
-                self.graphNodeList.append((level, domain_element))
-
+                nodeList.append((level, domain_element))
+        return nodeList
+    def create_nodesAsDict(self, levels):
+        nodeDict = {}
+        for level in levels:
+            for domain_element in range(self.domain_size):
+                nodeDict[(level, domain_element)] = None
+        return nodeDict
     def create_labels(self):
         self.labels_for_nodes = {}
         for label in self.labels_list:
@@ -139,7 +145,6 @@ class logicCompilation:
             # vs. (None,None) which means the function was evaluated to return nothing
             self.functions_for_nodes['pred'][(0,0)] = (None,None)
             self.functions_for_nodes['succ'][(0,self.domain_size - 1)] = (None,None)
-
         else:
             print(f'TODO')
             exit()
@@ -177,10 +182,11 @@ class logicCompilation:
 
 
 
-    def preprocessOutputFunctions(self):
+    def initializeOutputFunctions(self):
         #This will populate the succ/pred values of the outgraph with either None if non-order-preserving
         # otherwise with order-preserving values
         #TODO: incorporate non-string functions
+        print("Pre-processing order-preservation succ/pred relations for all nodes")
         for copyindex in range(len(self.copyset)):
             current_copy = self.copyset[copyindex]
             for function in self.functions_for_nodes.keys():
@@ -194,7 +200,7 @@ class logicCompilation:
                                 self.functions_for_nodes[function][(current_copy,domain_element)] =  (None,None)
                             else:
                                 self.functions_for_nodes[function][(current_copy,domain_element)] = \
-                                    (copy,self.functions_for_nodes[function][(0,domain_element)][1])
+                                    (current_copy,self.functions_for_nodes[function][(0,domain_element)][1])
                         elif copyindex is len(self.copyset)-1: # copyindex is final
                             previous_copy = self.copyset[copyindex-1]
                             first_copy= self.copyset[0]
@@ -217,11 +223,9 @@ class logicCompilation:
                             elif function == 'pred':
                                 if self.functions_for_nodes[function][(0,domain_element)] == (None,None):
                                     self.functions_for_nodes[function][(current_copy,domain_element)] =  (None,None)
-                                    print(self.functions_for_nodes[function][(current_copy,domain_element)])
                                 else:
                                     self.functions_for_nodes[function][(current_copy,domain_element)] = \
                                         (last_copy, self.functions_for_nodes[function][(0,domain_element)][1])
-                                print(self.functions_for_nodes[function][(current_copy,domain_element)])
                         else:
                             current_copy = self.copyset[copyindex]
                             next_copy = self.copyset[copyindex + 1]
@@ -232,7 +236,7 @@ class logicCompilation:
                                 self.functions_for_nodes[function][(current_copy,domain_element)] = \
                                     (first_copy, self.functions_for_nodes[function][(0,domain_element)][1])
 
-
+        print(f"Established the following functions for the output:\n{self.functions_for_nodes}")
     def fill_output(self):
 
         print('This is a log of all evaluations.')
@@ -241,13 +245,43 @@ class logicCompilation:
             ##Will do all labels isntead ofjust changed labels
             #for label in self.changed_labels[copy]:
             for label in self.labels_list:
-                print('\t\tEvaluating elements with the label ' + str(label))
+                print(f'\t\tEvaluating elements with the label {label} in copy {copy}')
                 for domain_element in self.domain_elements:
-                    print('\t\t\tEvaluating for the element ' + str(domain_element))
+                    print(f'\t\t\tEvaluating for the element {domain_element} in copy {copy}')
                     if self.labels_for_nodes[label][(copy,domain_element)] is None:
                         #self.get_output_value(copy, label, domain_element)
                         self.get_value(copy, 'label',label, domain_element)
                     print()
+        print("We will find all output nodes that have labels")
+        self.findOvertOutput()
+
+        if self.inputIsString and not self.isOrderPreserving:
+            print(f"The transduction is not order-preserving, so we  must determine all the succ/pred relations")
+            for copy in self.copyset:
+                print("\tEvaluating elements in Copy ", copy)
+                for function in self.functions_list:
+                    print(f'\t\tEvaluating elements with the function {function} in copy {copy}')
+                    for domain_element in self.domain_elements:
+                        print(f'\t\t\tEvaluating for the element {domain_element} in copy {copy}')
+                        if self.functions_for_nodes[function][(copy, domain_element)] is None:
+                            # self.get_output_value(copy, label, domain_element)
+                            self.get_value(copy, 'function', function, domain_element)
+                        print()
+
+        self.cleanUpStringPath()
+    def findOvertOutput(self):
+        self.overtOutputSegments = {}
+        for copy in self.copyset:
+            for element in self.domain_elements:
+                features=[]
+                for label in self.labels_for_nodes.keys():
+                    if self.labels_for_nodes[label][(copy,element)]==True: features.append(label)
+                features=frozenset(features)
+                if len(features)>0:
+                    print("\tFound an overt output segment at copy-element "+str(copy)+" "+str(element))
+                    self.overtOutputSegments[(copy,element)]=self.labels_to_symbols[features]
+        print(f'Found the following list of overt output segments:\n\t{self.overtOutputSegments}')
+
 
     def get_value(self,level,typeLogic,name,domain_element):
         if not ( level in ['input'] or level in self.copyset):
@@ -265,34 +299,43 @@ class logicCompilation:
             print(f'Error, the {typeLogic} {name} is not an existing {typeLogic}')
             exit()
 
-        if type(domain_element) is tuple:
-            print(f'Error, the domain_element is a tuple {domain_element}, but it should just be the second integer')
-            exit()
+        # if type(domain_element) is tuple:
+        #     print(f'Error, the domain_element is a tuple {domain_element}, but it should just be the second integer')
+        #     exit()
 
         if domain_element is None:
-            print(f"\t\t\t\tError, the domain element {domain_element} is None")
-            exit()
-            #TODO not sure if such a situation can ever arise and be correct
-        if domain_element not in self.domain_elements:
-            print(f"\t\t\t\tError, the domain element {domain_element} does not exist in the domain")
-            exit()
+            print(f"\t\t\t\tThe domain element {domain_element} is None, which means we return False")
+            return False
+
+        if not (domain_element == (None,None) or domain_element in self.domain_elements):
+            print(f"\t\t\t\The domain element {domain_element} does not exist in the domain\n"
+                  f"Nor is it the empty output node (None,None)\n"
+                  f"Returning False")
+            return False
             # TODO not sure if such a situation can ever arise and be correct
 
-
-        print(f'\t\t\t\tEvaluating get for level {level}, type {typeLogic}, name {name}, domain element {domain_element} for input symbol '
-              f'{self.word[domain_element]}')
+        print(f'\t\t\t\tEvaluating get for level {level}, type {typeLogic}, name {name}, domain element {domain_element}')
+        ##for input symbol   {self.word[domain_element]}')
 
 
         if level == 'input':
-            if typeLogic == 'label': return self.labels_for_nodes[name].get((0,domain_element))
-            elif typeLogic =="function": return self.functions_for_nodes[name].get((0,domain_element))[1]
+            if typeLogic == 'label':
+                returnValue = self.labels_for_nodes[name].get((0,domain_element))
+                print(f'\t\t\t\t\tReturning an input label value {returnValue}')
+                return returnValue
+            elif typeLogic =="function":
+                returnValue = self.functions_for_nodes[name].get((0,domain_element))
+                print(f'\t\t\t\t\tReturning an input function value {returnValue}')
+                return returnValue
             elif typeLogic == 'predicate':
                 if self.predicates_for_nodes[name].get((0,domain_element)) is not None:
+                    returnValue = self.predicates_for_nodes[name][(0,domain_element)]
                     print("\t\t\t\t\tThe value was already evaluated in a previous get")
-                    return self.predicates_for_nodes[name][(0,domain_element)]
+                    print(f'\t\t\t\t\tReturning an input predicate value {returnValue}')
+                    return returnValue
                 print('\t\t\t\t\tWill evaluate the predicate using the user predicate list for: '  + str(name))
-
                 found = self.importedModule.personal_Predicate_Formula(self, name, domain_element)
+                print(f'hi {found}')
                 print('\t\t\t\t\tReturned predicate value for '+str(name)+' was: ' + str(found))
                 if found is None:
                     print('\t\t\t\t\tThe value is None so its set to false')
@@ -320,15 +363,18 @@ class logicCompilation:
             elif typeLogic =="function":
                 if self.functions_for_nodes[name].get((level,domain_element)) is not None:
                     print("\t\t\t\t\tThe value was already evaluated in a previous get")
-                    return self.functions_for_nodes[name][(level,domain_element)][1]
+                    return self.functions_for_nodes[name][(level,domain_element)]
                 else:
-                    found = self.importedModule.personal_Output_Formula(self, level, name, domain_element)
+                    found = self.importedModule.personal_OutputFunction_Formula(self, level, name, domain_element)
                     print('\t\t\t\t\tReturned output function value was: ' + str(found))
                     if found is None:
                         print('\t\t\t\t\tThe value is None so its set to (None,None)')
-                        self.functions_for_nodes[name][(level,domain_element)]  = (None,None)
-                    else:
-                        self.functions_for_nodes[name][(level,domain_element)]  = found
+                        found = (None,None)
+                    elif type(found) is tuple and found[1] ==  None:
+                        print('\t\t\t\t\tThe value is (level,None) so its set to (None,None)')
+                        found = (None,None)
+                    assert type(found) is tuple
+                    self.functions_for_nodes[name][(level,domain_element)]  = found
                     return found
 
 
@@ -359,31 +405,108 @@ class logicCompilation:
     def create_output_segments(self):
         # TODO ideally we would be using the succ/pred functions via the node list
         # but that requires picking the initial symbol in the output somehow
-        self.output_segments= self.initialize_empty_dict(self.copyset)
-        for copy in self.output_segments.keys():
-            self.output_segments[copy]=self.initialize_empty_dict(self.domain_elements)
-        for copy in self.output_segments.keys():
+        print(f"Creating output segments using overt segments:\n{self.overtOutputSegments}")
+        print(f"And with function list:\n{self.functions_for_nodes}")
+        # if self.inputIsString:
+        #     self.output_segmentsForOrderingSucc = {}
+        #     self.output_segmentsForOrderingPred = {}
+        for copy in self.copyset:
+            listForOutputsInCopy= []
             for element in self.domain_elements:
-                features=[]
-                for label in self.labels_for_nodes.keys():
-                    if self.labels_for_nodes[label][(copy,element)]==True: features.append(label)
-                features=frozenset(features)
-                if len(features)>0:
-                    print("Will output the symbol at copy-element "+str(copy)+" "+str(element))
-                    self.output_segments[copy][element]=self.labels_to_symbols[features]
-                else: self.output_segments[copy][element]=''
+                print(f'\tProcessing element {element} with overtness value {self.overtOutputSegments.get((copy,element))}')
+                elementIfOvert = self.overtOutputSegments.get((copy,element))
+                if not elementIfOvert == None:
+                    listForOutputsInCopy.append(elementIfOvert)
+                    # if self.inputIsString:
+                    #     self.output_segmentsForOrderingSucc[(copy, element)] = self.functions_for_nodes['succ'][
+                    #         (copy, element)]
+                    #     self.output_segmentsForOrderingPred[(copy, element)] = self.functions_for_nodes['pred'][
+                    #         (copy, element)]
+                else:
+                    listForOutputsInCopy.append('')
 
-    def create_output_segments_display(self):
-        #Prepare display for the output symbols, and also create a string for them
-        self.outputSegmentsList =[]
-        for copy in self.output_segments.keys():
-            listOfSegmentsInCopy =list(self.output_segments[copy].values())
-            self.outputSegmentsList.append(listOfSegmentsInCopy)
-            self.display.append([''] + listOfSegmentsInCopy)
-        # TODO need to figure out how to pick the initial symbol for a non-order-preserving function
-        # TODO ideally we would be using the succ/pred functions via the node list
+            self.display.append([''] + listForOutputsInCopy)
+
+        # print(f'Created the following output segments for displaying succ:\n\t{self.output_segmentsForOrderingSucc}')
+        # print(f'Created the following output segments for displaying pred:\n\t{self.output_segmentsForOrderingPred}')
+
+    def cleanUpStringPath(self):
         if self.inputIsString:
-            self.outputString = ''.join([val for tup in zip(*self.outputSegmentsList) for val in tup])
+            print(f'The transduction must create a string')
+            print(f'We process the transduction to remove succ/pred functions to or from non-overt output nodes')
+            print(f'The initial function list is:\n{self.functions_for_nodes}')
+            for copy in self.copyset:
+                for domain_element in self.domain_elements:
+                    node = (copy,domain_element)
+                    if node in self.overtOutputSegments:
+                        print(f'\tNode {node} is overt so its pred/succ stay')
+                    else:
+                        print(f'\tNode {node} is not overt so its pred/succ must connect')
+                        self.connectBetweenNodes(node)
+                        print(f'Function list has changed:\n{self.functions_for_nodes}')
+    def connectBetweenNodes(self,nodeB):
+        # Given a node B, will connect the predecessor A to the successor C
+        # Node B will lose any predecessor and successor information
+        nodeA = self.functions_for_nodes['pred'][nodeB]
+        nodeC = self.functions_for_nodes['succ'][nodeB]
+        print(f'\tPredecessor {nodeA} and successor {nodeC}')
+        if nodeA == (None,None) and nodeC == (None,None):
+            print(f"\tPredecessor does not exist and the successor does not exist")
+
+        elif nodeA == (None,None) and not nodeC == (None,None):
+            print(f"\tPredecessor does not exist but successor exists")
+            self.functions_for_nodes['succ'][nodeB] = (None, None)
+            self.functions_for_nodes['pred'][nodeC] = (None,None)
+        elif not nodeA == (None,None) and  nodeC == (None,None):
+            print(f"\tPredecessor exists but successor does not exist")
+            self.functions_for_nodes['succ'][nodeA] = (None,None)
+            self.functions_for_nodes['pred'][nodeB] = (None,None)
+        else:
+            print(f"\tPredecessor exists and successor exists")
+            self.functions_for_nodes['succ'][nodeA] = nodeC
+            self.functions_for_nodes['pred'][nodeC] = nodeA
+            self.functions_for_nodes['pred'][nodeB] = (None,None)
+            self.functions_for_nodes['succ'][nodeB] = (None, None)
+
+
+    def create_output_segments_String(self):
+        #Goes through the list of overt nodes and their succ/pred functions to create a string
+        if self.inputIsString:
+            print(f'Will generate an output string')
+            print(f'\tList of overt nodes:\n{self.overtOutputSegments}')
+            print(f'\tList of succ functions:\n{self.functions_for_nodes["succ"]}')
+            print(f'\tList of pred functions:\n{self.functions_for_nodes["pred"]}')
+            startingPoint = None
+            endingPoint = None
+
+            for node in self.overtOutputSegments.keys():
+                if self.functions_for_nodes['pred'][node] == (None,None):
+                    if startingPoint == None:
+                        startingPoint = node
+                    else:
+                        print(f'Error,the output includes more than one overt output segment that starts the string')
+                        exit()
+                if self.functions_for_nodes['succ'][node] == (None,None):
+                    if endingPoint == None:
+                        endingPoint = node
+                    else:
+                        print(f'Error,the output includes more than one overt output segment that ends the string')
+                        exit()
+
+            print(f"The string starts at {startingPoint} and ends at {endingPoint}")
+            self.outputString = ''
+            if startingPoint == None and endingPoint == None:
+                print(f"The transduction creates the empty string")
+                return
+            currentpoint = startingPoint
+            reachedEndPoint = False
+            while not reachedEndPoint:
+                if currentpoint == endingPoint:
+                    reachedEndPoint = True
+                currentpoint_segment = self.overtOutputSegments[currentpoint]
+                self.outputString = self.outputString + currentpoint_segment
+                nextpoint = self.functions_for_nodes['succ'][currentpoint]
+                currentpoint = nextpoint
         else:
             print(f'TODO')
             exit()

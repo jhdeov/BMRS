@@ -320,9 +320,9 @@ class yamlConversion:
         elif type(text) is list and len(text) is 2:
             firstElement,secondElement = text[0],text[1]
             if firstElement ==  'pred':
-                return f"self.get_value('input','function','pred',{self.processNodeFinding(secondElement)})"
+                return f"self.get_value('input','function','pred',{self.processNodeFinding(secondElement)})[1]"
             elif firstElement ==  'succ':
-                return f"self.get_value('input','function','succ',{self.processNodeFinding(secondElement)})"
+                return f"self.get_value('input','function','succ',{self.processNodeFinding(secondElement)})[1]"
             else:
                 print(f"Error, can't find a node with info:{text}")
                 exit()

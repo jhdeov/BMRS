@@ -1,5 +1,5 @@
 """Here's a template
-Replace TO DO with your own code
+TODO: any calls to functions must be fixed to add [1] to retrieve domain elements
 """
 
 def personal_setup(self):
@@ -71,8 +71,8 @@ def personal_Output_Formula(self, copy, label, domain_element):
      """
 
     """Example below. Delete"""
-    pred = self.get_value('input', 'function', 'pred', domain_element)
-    succ = self.get_value('input', 'function', 'succ', domain_element)
+    pred = self.get_value('input', 'function', 'pred', domain_element)[1]
+    succ = self.get_value('input', 'function', 'succ', domain_element)[1]
 
     if copy is 1 and label == 'stress':
         if self.get_value('input', 'predicate', 'only', domain_element):
@@ -120,8 +120,8 @@ def personal_Predicate_Formula(self,predicate,domain_element):
      """
 
 
-    pred = self.get_value('input','function','pred',domain_element)
-    succ = self.get_value('input','function','succ',domain_element)
+    pred = self.get_value('input','function','pred',domain_element)[1]
+    succ = self.get_value('input','function','succ',domain_element)[1]
 
 
 
