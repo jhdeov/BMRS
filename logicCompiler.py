@@ -393,7 +393,12 @@ class logicCompilation:
             print(f"\t\t\tThe node is  {node}, which is the empty non-existent node\n"
                   f"\t\t\tBy default, we return false")
             return False
-        if not (domain_element == (None, None) or domain_element in self.domain_elements):
+        if domain_element is None:
+            print(f"\t\t\tThe domain element is None"
+                  f"\t\t\tThis may have arised because we tried to extract the domain element of the empty node (None,None)"
+                  f"\t\t\tIn that case, we return False\n")
+            return False
+        if not (domain_element in self.domain_elements):
             print(f"\t\t\tThe domain element {domain_element} does not exist in the domain\n"
                   f"Nor is it the empty output node (None,None)\n"
                   f"TODO not sure if such a situation can ever arise and be correct")
@@ -463,15 +468,16 @@ class logicCompilation:
         print(f"\t\t\tTrying to retrieve the domain element for node {node}")
         level,domain_element = node
         if level == None and domain_element == None:
-            print(f"\t\t\tThe node is  {node}, which is the empty non-existent node\n"
-                  f"\t\t\tBy default, returning None"
-                  f"\t\t\t TODO check if this causes errors")
+            print(f"\t\t\t\tThe node is  {node}, which is the empty non-existent node\n"
+                  f"\t\t\t\tBy default, returning None"
+                  f"\t\t\t\tTODO check if this causes errors")
             return None
         if not domain_element in self.domain_elements:
-            print(f"\t\t\t\The domain element {domain_element} does not exist in the domain\n"
-                  f"\t\t\tNor is it the empty output node (None,None)\n"
-                  f"\t\t\tTODO not sure if such a situation can ever arise and be correct")
+            print(f"\t\t\t\tThe domain element {domain_element} does not exist in the domain\n"
+                  f"\t\t\t\tNor is it the empty output node (None,None)\n"
+                  f"\t\t\t\tTODO not sure if such a situation can ever arise and be correct")
             exit()
+        print(f"\t\t\tReturned {domain_element}")
         return domain_element
 
     def get_NodeValue(self,typeLogic,name,node):
