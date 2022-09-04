@@ -103,7 +103,7 @@ class yamlConversion:
         print('\n4) Creating the predicate code')
         self.processPredicateList()
         print('\n5) Creating the output function code')
-        self.processOutputFormulaList()
+        self.processOutputLabelFormulaList()
 
         print("\nCreating the python file")
         self.createPythonFile()
@@ -227,23 +227,23 @@ class yamlConversion:
         print(f'->Finished creating python code for copyset:\n{self.copySetPython}')
 
 
-    def processOutputFormulaList(self):
-        self.outputFormulaPythonList = []
-        for outpufunction_listifid_yaml in self.outputFunctList_yaml:
-            print(f'Working on output function code from yaml:\n{outpufunction_listifid_yaml}')
-            outputFormula_label = outpufunction_listifid_yaml['name']
-            outputFormula_copy = outpufunction_listifid_yaml['copy']
-            outputFormula_node = outpufunction_listifid_yaml['node']
-            assert outputFormula_node == ['x']
-            outputFormula_logicYaml = outpufunction_listifid_yaml['logic']
-            outputFormula_python_ListItem =f'\tif copy is {outputFormula_copy} and label == {outputFormula_label}:'
-            logicBody = self.processLogicBody(outputFormula_logicYaml,"\t\t")
-            outputFormula_python_ListItem = outputFormula_python_ListItem + f"\n{logicBody}"
-            print(f'->Created:\n{outputFormula_python_ListItem}')
-            outputFormula_python_ListItem = self.addReturnsToLogicBody(outputFormula_python_ListItem)
-            print(f'->Cleaned up with returns:\n{outputFormula_python_ListItem}')
+    def processOutputLabelFormulaList(self):
+        self.outputLabelFormulaPythonList = []
+        for outputLabelFunction_listifid_yaml in self.outputFunctList_yaml:
+            print(f'Working on output function code from yaml:\n{outputLabelFunction_listifid_yaml}')
+            outputLabelFormula_label = outputLabelFunction_listifid_yaml['name']
+            outputLabelFormula_copy = outputLabelFunction_listifid_yaml['copy']
+            outputLabelFormula_node = outputLabelFunction_listifid_yaml['node']
+            assert outputLabelFormula_node == ['x']
+            outputLabelFormula_logicYaml = outputLabelFunction_listifid_yaml['logic']
+            outputLabelFormula_python_ListItem =f'\tif copy is {outputLabelFormula_copy} and label == {outputLabelFormula_label}:'
+            logicBody = self.processLogicBody(outputLabelFormula_logicYaml,"\t\t")
+            outputLabelFormula_python_ListItem = outputLabelFormula_python_ListItem + f"\n{logicBody}"
+            print(f'->Created:\n{outputLabelFormula_python_ListItem}')
+            outputLabelFormula_python_ListItem = self.addReturnsToLogicBody(outputLabelFormula_python_ListItem)
+            print(f'->Cleaned up with returns:\n{outputLabelFormula_python_ListItem}')
 
-            self.outputFormulaPythonList.append(outputFormula_python_ListItem)
+            self.outputLabelFormulaPythonList.append(outputLabelFormula_python_ListItem)
 
 
     def processPredicateList(self):
@@ -264,7 +264,7 @@ class yamlConversion:
         print(f'->Creating the following list of predicates: {self.predicateListNames}')
         self.predicateLogicPython = []
         for predicateYaml in self.predicateList_yaml:
-            predicateText = f"\tif predicate == '{predicateYaml['name']}':"
+            predicateText = f"\tif level is 0 and predicate == '{predicateYaml['name']}':"
             assert predicateYaml['node'] == ['x']
             logicBody=self.processLogicBody(predicateYaml['logic'],"\t\t")
             predicateText = predicateText + f"\n{logicBody}"
@@ -289,9 +289,13 @@ class yamlConversion:
                 islabelOrPred = self.strLabelOrPred(labelOrPred)
                 copy = self.strCopyIndex(copy)
             elif firstElement in self.predicateListNames:
-                islabelOrPred, labelOrPred, copy = "predicate",firstElement,"'input'"
+                islabelOrPred, labelOrPred, copy = "predicate",firstElement,"0"
             node = self.processNodeFinding(secondElement)
-            logicbody = f"{tabs}self.get_value({copy},'{islabelOrPred}','{labelOrPred}',{node})"
+            # Right now, the nodeFinding method is used to retrieve a node (copy,domain_element)
+            # But if an output-label function is calling this, then we just need the domain element which we have to extract
+            # Once we incorpoate output-function formula, then this will need to be revised
+            # TODO: what we need is to incorporate indexing better in the YAML
+            logicbody = f"{tabs}self.get_BooleanValue('{islabelOrPred}','{labelOrPred}',({copy},self.get_NodeDomain({node})))"
             print(f'->Processed this body and returned:{logicbody}')
             return logicbody
         elif len(text) is 4:
@@ -316,13 +320,13 @@ class yamlConversion:
     def processNodeFinding(self,text):
         print(f"Finding node with info:{text}")
         if text == 'x':
-            return 'domain_element'
+            return '(0,domain_element)'
         elif type(text) is list and len(text) is 2:
             firstElement,secondElement = text[0],text[1]
             if firstElement ==  'pred':
-                return f"self.get_value('input','function','pred',{self.processNodeFinding(secondElement)})[1]"
+                return f"self.get_NodeValue('function','pred',{self.processNodeFinding(secondElement)})"
             elif firstElement ==  'succ':
-                return f"self.get_value('input','function','succ',{self.processNodeFinding(secondElement)})[1]"
+                return f"self.get_NodeValue('function','succ',{self.processNodeFinding(secondElement)})"
             else:
                 print(f"Error, can't find a node with info:{text}")
                 exit()
@@ -332,10 +336,7 @@ class yamlConversion:
     def strCopyIndex(self,text):
         zeroTillCopyMax = (list(range(self.copySetMaxValue+1)))
         assert text in zeroTillCopyMax
-        if text is 0:
-            return "'input'"
-        else:
-            return text
+        return text
     def strLabelOrPred(self,text):
             if text in self.predicateListNames:
                 return 'predicate'
@@ -388,16 +389,20 @@ class yamlConversion:
             else:
                 o.writelines(f"\treturn\n")
 
-            o.writelines(f"def personal_Output_Formula(self, copy, label, domain_element):\n")
-            for outputFunPython in self.outputFormulaPythonList:
+            o.writelines(f"def personal_OutputLabel_Formula(self, label, node):\n")
+            o.writelines(f"\tcopy,domain_element = node\n")
+            for outputFunPython in self.outputLabelFormulaPythonList:
                 o.writelines(f"{outputFunPython}\n")
+            o.writelines(f"\treturn False\n")
 
-            o.writelines(f"def personal_Predicate_Formula(self,predicate,domain_element):\n")
+            o.writelines(f"def personal_Predicate_Formula(self,predicate,node):\n")
+            o.writelines(f"\tlevel,domain_element = node\n")
             if len(self.predicateListNames) > 0:
                 for predicatePython in self.predicateLogicPython:
                     o.writelines(f"{predicatePython}\n")
             else:
                 o.writelines(f"\treturn\n")
+            o.writelines(f"\treturn False\n")
 
 
 

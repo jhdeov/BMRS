@@ -5,7 +5,6 @@ from yamlConverter import yamlConversion
 
 parameter = sys.argv[1] #
 if parameter == 'convert':
-    print('hi')
     yamlfile = sys.argv[2]
     if len(sys.argv) >3:
         pythonFileName=sys.argv[3]

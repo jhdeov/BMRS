@@ -249,24 +249,28 @@ class logicCompilation:
                 for domain_element in self.domain_elements:
                     print(f'\t\t\tEvaluating for the element {domain_element} in copy {copy}')
                     if self.labels_for_nodes[label][(copy,domain_element)] is None:
-                        #self.get_output_value(copy, label, domain_element)
-                        self.get_value(copy, 'label',label, domain_element)
+                        #OLD self.get_value(copy, 'label',label, domain_element)
+                        self.get_BooleanValue('label',label, (copy, domain_element))
                     print()
         print("We will find all output nodes that have labels")
         self.findOvertOutput()
 
         if self.inputIsString and not self.isOrderPreserving:
-            print(f"The transduction is not order-preserving, so we  must determine all the succ/pred relations")
+            print(f"The transduction is not order-preserving, so we  must determine all the succ/pred relations"
+                  f"\nWe determine succ/pred of output nodes that have labels")
             for copy in self.copyset:
                 print("\tEvaluating elements in Copy ", copy)
                 for function in self.functions_list:
                     print(f'\t\tEvaluating elements with the function {function} in copy {copy}')
                     for domain_element in self.domain_elements:
                         print(f'\t\t\tEvaluating for the element {domain_element} in copy {copy}')
-                        if self.functions_for_nodes[function][(copy, domain_element)] is None:
-                            # self.get_output_value(copy, label, domain_element)
-                            self.get_value(copy, 'function', function, domain_element)
-                        print()
+                        if (copy,domain_element) in self.overtOutputSegments.keys():
+                            print("\t\t\t\tThis output element is an overt segment so we can find its succ/pred functions")
+                            if self.functions_for_nodes[function][(copy, domain_element)] is None:
+                                # OLD self.get_value(copy, 'function', function, domain_element)
+                                self.get_NodeValue( 'function', function,(copy, domain_element))
+                        else:
+                            print("\t\t\t\tThis output element is not an overt segment so we skip its succ/pred functions")
 
         self.cleanUpStringPath()
     def findOvertOutput(self):
@@ -283,49 +287,144 @@ class logicCompilation:
         print(f'Found the following list of overt output segments:\n\t{self.overtOutputSegments}')
 
 
-    def get_value(self,level,typeLogic,name,domain_element):
-        if not ( level in ['input'] or level in self.copyset):
-            print("Error, wrong level given to get_value. Must be `input' or a copy")
+# OLD    def get_value(self,level,typeLogic,name,domain_element):
+#         if not ( level in ['input'] or level in self.copyset):
+#             print("Error, wrong level given to get_value. Must be `input' or a copy")
+#             print(f'{level}')
+#             exit()
+#         if not (typeLogic in ['label','function','predicate']):
+#             print("Error, wrong type given to get_value. Must be 'label', 'function', or 'predicate'")
+#             print(f'{typeLogic}')
+#
+#             exit()
+#         if (typeLogic == 'label' and name not in self.labels_for_nodes.keys()) or \
+#             (typeLogic == 'function' and name not in self.functions_for_nodes.keys()) or \
+#             (typeLogic == 'predicate' and name not in self.predicates_for_nodes.keys()):
+#             print(f'Error, the {typeLogic} {name} is not an existing {typeLogic}')
+#             exit()
+#
+#         # if type(domain_element) is tuple:
+#         #     print(f'Error, the domain_element is a tuple {domain_element}, but it should just be the second integer')
+#         #     exit()
+#
+#         if domain_element is None:
+#             print(f"\t\t\t\tThe domain element {domain_element} is None, which means we return False")
+#             return False
+#
+#         if not (domain_element == (None,None) or domain_element in self.domain_elements):
+#             print(f"\t\t\t\The domain element {domain_element} does not exist in the domain\n"
+#                   f"Nor is it the empty output node (None,None)\n"
+#                   f"Returning False")
+#             return False
+#             # TODO not sure if such a situation can ever arise and be correct
+#
+#         print(f'\t\t\t\tEvaluating get for level {level}, type {typeLogic}, name {name}, domain element {domain_element}')
+#         ##for input symbol   {self.word[domain_element]}')
+#
+#
+#         if level == 'input':
+#             if typeLogic == 'label':
+#                 returnValue = self.labels_for_nodes[name].get((0,domain_element))
+#                 print(f'\t\t\t\t\tReturning an input label value {returnValue}')
+#                 return returnValue
+#             elif typeLogic =="function":
+#                 returnValue = self.functions_for_nodes[name].get((0,domain_element))
+#                 print(f'\t\t\t\t\tReturning an input function value {returnValue}')
+#                 return returnValue
+#             elif typeLogic == 'predicate':
+#                 if self.predicates_for_nodes[name].get((0,domain_element)) is not None:
+#                     returnValue = self.predicates_for_nodes[name][(0,domain_element)]
+#                     print("\t\t\t\t\tThe value was already evaluated in a previous get")
+#                     print(f'\t\t\t\t\tReturning an input predicate value {returnValue}')
+#                     return returnValue
+#                 print('\t\t\t\t\tWill evaluate the predicate using the user predicate list for: '  + str(name))
+#                 found = self.importedModule.personal_Predicate_Formula(self, name, domain_element)
+#                 print(f'hi {found}')
+#                 print('\t\t\t\t\tReturned predicate value for '+str(name)+' was: ' + str(found))
+#                 if found is None:
+#                     print('\t\t\t\t\tThe value is None so its set to false')
+#                     self.predicates_for_nodes[name][(0,domain_element)] = False
+#                 else:
+#                     self.predicates_for_nodes[name][(0,domain_element)] = found
+#                 return found
+#
+#         if level in self.copyset:
+#             if typeLogic == 'label':
+#                 if self.labels_for_nodes[name].get((level,domain_element)) is not None:
+#                     print("\t\t\t\t\tThe value was already evaluated in a previous get")
+#                     return self.labels_for_nodes[name][(level,domain_element)]
+#                 else:
+#                     print('\t\t\t\t\tWill evaluate the output label using the user label list for: ' + str(name))
+#                     found = self.importedModule.personal_OutputLabel_Formula(self, level, name, domain_element)
+#                     print('\t\t\t\t\tReturned output label value was: ' + str(found))
+#                     if found is None:
+#                         print('\t\t\t\t\tThe value is None so its set to false')
+#                         self.labels_for_nodes[name][(level,domain_element)] = False
+#                     else:
+#                         self.labels_for_nodes[name][(level,domain_element)] = found
+#                     return found
+#
+#             elif typeLogic =="function":
+#                 if self.functions_for_nodes[name].get((level,domain_element)) is not None:
+#                     print("\t\t\t\t\tThe value was already evaluated in a previous get")
+#                     return self.functions_for_nodes[name][(level,domain_element)]
+#                 else:
+#                     found = self.importedModule.personal_OutputFunction_Formula(self, level, name, domain_element)
+#                     print('\t\t\t\t\tReturned output function value was: ' + str(found))
+#                     if found is None:
+#                         print('\t\t\t\t\tThe value is None so its set to (None,None)')
+#                         found = (None,None)
+#                     elif type(found) is tuple and found[1] ==  None:
+#                         print('\t\t\t\t\tThe value is (level,None) so its set to (None,None)')
+#                         found = (None,None)
+#                     assert type(found) is tuple
+#                     self.functions_for_nodes[name][(level,domain_element)]  = found
+#                     return found
+
+    def get_BooleanValue(self,typeLogic,name,node):
+        level,domain_element = node
+        if (level, domain_element) == None:
+            print(
+                f"\t\t\tThe level and domain element {level, domain_element} is None, which means we return False by default"
+                f"TODO test break")
+            exit()
+            return False
+        if level == None and domain_element == None:
+            print(f"\t\t\tThe node is  {node}, which is the empty non-existent node\n"
+                  f"\t\t\tBy default, we return false")
+            return False
+        if not (domain_element == (None, None) or domain_element in self.domain_elements):
+            print(f"\t\t\tThe domain element {domain_element} does not exist in the domain\n"
+                  f"Nor is it the empty output node (None,None)\n"
+                  f"TODO not sure if such a situation can ever arise and be correct")
+            exit()
+            return False
+
+        if not ( level in [0] or level in self.copyset):
+            print("\t\t\tError, wrong level given to get_BooleanValue. Must be 0 or a copy")
             print(f'{level}')
             exit()
-        if not (typeLogic in ['label','function','predicate']):
-            print("Error, wrong type given to get_value. Must be 'label', 'function', or 'predicate'")
+        if not (typeLogic in ['label','predicate']):
+            print("\t\t\tError, wrong type given to get_BooleanValue. Must be 'label' or 'predicate'")
             print(f'{typeLogic}')
 
             exit()
         if (typeLogic == 'label' and name not in self.labels_for_nodes.keys()) or \
-            (typeLogic == 'function' and name not in self.functions_for_nodes.keys()) or \
             (typeLogic == 'predicate' and name not in self.predicates_for_nodes.keys()):
-            print(f'Error, the {typeLogic} {name} is not an existing {typeLogic}')
+            print(f'\t\t\tError, the {typeLogic} {name} is not an existing {typeLogic}')
             exit()
 
-        # if type(domain_element) is tuple:
-        #     print(f'Error, the domain_element is a tuple {domain_element}, but it should just be the second integer')
-        #     exit()
 
-        if domain_element is None:
-            print(f"\t\t\t\tThe domain element {domain_element} is None, which means we return False")
-            return False
+           #
 
-        if not (domain_element == (None,None) or domain_element in self.domain_elements):
-            print(f"\t\t\t\The domain element {domain_element} does not exist in the domain\n"
-                  f"Nor is it the empty output node (None,None)\n"
-                  f"Returning False")
-            return False
-            # TODO not sure if such a situation can ever arise and be correct
-
-        print(f'\t\t\t\tEvaluating get for level {level}, type {typeLogic}, name {name}, domain element {domain_element}')
+        print(f'\t\t\t\tEvaluating get_BooleanValue for  type {typeLogic}, name {name}, level {level}, domain element {domain_element}')
         ##for input symbol   {self.word[domain_element]}')
 
 
-        if level == 'input':
+        if level == 0:
             if typeLogic == 'label':
                 returnValue = self.labels_for_nodes[name].get((0,domain_element))
                 print(f'\t\t\t\t\tReturning an input label value {returnValue}')
-                return returnValue
-            elif typeLogic =="function":
-                returnValue = self.functions_for_nodes[name].get((0,domain_element))
-                print(f'\t\t\t\t\tReturning an input function value {returnValue}')
                 return returnValue
             elif typeLogic == 'predicate':
                 if self.predicates_for_nodes[name].get((0,domain_element)) is not None:
@@ -334,11 +433,11 @@ class logicCompilation:
                     print(f'\t\t\t\t\tReturning an input predicate value {returnValue}')
                     return returnValue
                 print('\t\t\t\t\tWill evaluate the predicate using the user predicate list for: '  + str(name))
-                found = self.importedModule.personal_Predicate_Formula(self, name, domain_element)
-                print(f'hi {found}')
+                found = self.importedModule.personal_Predicate_Formula(self, name, (0,domain_element))
                 print('\t\t\t\t\tReturned predicate value for '+str(name)+' was: ' + str(found))
                 if found is None:
-                    print('\t\t\t\t\tThe value is None so its set to false')
+                    print('\t\t\t\t\tThe value is None. Is this Error, because it was false before?')
+                    exit()
                     self.predicates_for_nodes[name][(0,domain_element)] = False
                 else:
                     self.predicates_for_nodes[name][(0,domain_element)] = found
@@ -351,32 +450,97 @@ class logicCompilation:
                     return self.labels_for_nodes[name][(level,domain_element)]
                 else:
                     print('\t\t\t\t\tWill evaluate the output label using the user label list for: ' + str(name))
-                    found = self.importedModule.personal_Output_Formula(self, level, name, domain_element)
+                    found = self.importedModule.personal_OutputLabel_Formula(self,  name, (level,domain_element))
                     print('\t\t\t\t\tReturned output label value was: ' + str(found))
                     if found is None:
-                        print('\t\t\t\t\tThe value is None so its set to false')
+                        print('\t\t\t\t\tThe value is None. Is this Error, because it was false before?')
+                        exit()
                         self.labels_for_nodes[name][(level,domain_element)] = False
                     else:
                         self.labels_for_nodes[name][(level,domain_element)] = found
                     return found
+    def get_NodeDomain(self,node):
+        print(f"\t\t\tTrying to retrieve the domain element for node {node}")
+        level,domain_element = node
+        if level == None and domain_element == None:
+            print(f"\t\t\tThe node is  {node}, which is the empty non-existent node\n"
+                  f"\t\t\tBy default, returning None"
+                  f"\t\t\t TODO check if this causes errors")
+            return None
+        if not domain_element in self.domain_elements:
+            print(f"\t\t\t\The domain element {domain_element} does not exist in the domain\n"
+                  f"\t\t\tNor is it the empty output node (None,None)\n"
+                  f"\t\t\tTODO not sure if such a situation can ever arise and be correct")
+            exit()
+        return domain_element
 
-            elif typeLogic =="function":
+    def get_NodeValue(self,typeLogic,name,node):
+        level,domain_element = node
+
+        if not ( level in [0] or level in self.copyset):
+            print("\t\t\tError, wrong level given to get_NodeValue. Must be 0 or a copy")
+            print(f'{level}')
+            exit()
+        if not (typeLogic in ['function']):
+            print("\t\t\tError, wrong type given to get_NodeValue. Must be 'function'")
+            print(f'{typeLogic}')
+
+            exit()
+        if (typeLogic == 'function' and name not in self.functions_for_nodes.keys()) :
+            print(f'\t\t\tError, the {typeLogic} {name} is not an existing {typeLogic}')
+            exit()
+
+        if level == None and domain_element == None:
+            print(f"\t\t\tThe node is  {node}, which is the empty non-existent node\n"
+                  f"\t\t\tBy default, we return the empty node {node} again")
+            return node
+        if (level,domain_element) ==   None:
+            print(f"\t\t\t\tThe level and domain element {level,domain_element} is None, which means we return False by default"
+                  f"TODO test break")
+            exit()
+            return False
+
+        if not (domain_element == (None,None) or domain_element in self.domain_elements):
+            print(f"\t\t\t\The domain element {domain_element} does not exist in the domain\n"
+                  f"Nor is it the empty output node (None,None)\n"
+                  f"TODO not sure if such a situation can ever arise and be correct")
+            exit()
+            return False
+            #
+
+        print(f'\t\t\t\tEvaluating get NodeValue for  type {typeLogic}, name {name}, level {level}, domain element {domain_element}')
+        ##for input symbol   {self.word[domain_element]}')
+
+
+        if level == 0:
+            if typeLogic == "function":
+                returnValue = self.functions_for_nodes[name].get((0,domain_element))
+                print(f'\t\t\t\t\tReturning an input function value {returnValue}')
+                return returnValue
+
+        if level in self.copyset:
+            if typeLogic =="function":
                 if self.functions_for_nodes[name].get((level,domain_element)) is not None:
                     print("\t\t\t\t\tThe value was already evaluated in a previous get")
                     return self.functions_for_nodes[name][(level,domain_element)]
                 else:
-                    found = self.importedModule.personal_OutputFunction_Formula(self, level, name, domain_element)
+                    found = self.importedModule.personal_OutputFunction_Formula(self, name, (level, domain_element))
                     print('\t\t\t\t\tReturned output function value was: ' + str(found))
                     if found is None:
-                        print('\t\t\t\t\tThe value is None so its set to (None,None)')
-                        found = (None,None)
-                    elif type(found) is tuple and found[1] ==  None:
-                        print('\t\t\t\t\tThe value is (level,None) so its set to (None,None)')
+                        print('\t\t\t\t\tThe value is None. Error? It used to be set to (None,None)')
+                        exit()
                         found = (None,None)
                     assert type(found) is tuple
+                    if found[0] in self.copyset and found not in self.overtOutputSegments.keys():
+                        print(f'\t\t\t\t\tThe value is {level,domain_element} which is not an overt output segment'
+                              f'\t\t\t\t\tSo we return (None,None)')
+                        found = (None,None)
+                    if found[0] !=  None and  found[1] ==  None:
+                        print(f'\t\t\t\t\tThe value is {found}.\n'
+                              f'\t\t\t\t\tBecause the domain is non-existent, returning the empty node (Node,Node)')
+                        found = (None,None)
                     self.functions_for_nodes[name][(level,domain_element)]  = found
                     return found
-
 
 
     def create_output_display(self):
@@ -413,7 +577,7 @@ class logicCompilation:
         for copy in self.copyset:
             listForOutputsInCopy= []
             for element in self.domain_elements:
-                print(f'\tProcessing element {element} with overtness value {self.overtOutputSegments.get((copy,element))}')
+                print(f'\tProcessing copy-element {copy,element} with overtness value {self.overtOutputSegments.get((copy,element))}')
                 elementIfOvert = self.overtOutputSegments.get((copy,element))
                 if not elementIfOvert == None:
                     listForOutputsInCopy.append(elementIfOvert)
@@ -431,9 +595,10 @@ class logicCompilation:
         # print(f'Created the following output segments for displaying pred:\n\t{self.output_segmentsForOrderingPred}')
 
     def cleanUpStringPath(self):
-        if self.inputIsString:
+        if self.inputIsString and self.isOrderPreserving:
             print(f'The transduction must create a string')
-            print(f'We process the transduction to remove succ/pred functions to or from non-overt output nodes')
+            print(f'We process the transduction to remove succ/pred functions to or from non-overt output nodes'
+                  f'\nIm not sure if this should be restricted to order preserving functions')
             print(f'The initial function list is:\n{self.functions_for_nodes}')
             for copy in self.copyset:
                 for domain_element in self.domain_elements:
