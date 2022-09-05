@@ -9,6 +9,7 @@ def personal_features(self):
 	return
 def personal_predicate_setup(self):
 	self.predicates_list = [  'word-final' ]
+	return
 def personal_OutputLabel_Formula(self, label,node):
 	copy,domain_element = node
 	if copy is 1 and label == "a":

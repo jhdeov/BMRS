@@ -391,8 +391,7 @@ class yamlConversion:
             o.writelines(f"def personal_predicate_setup(self):\n")
             if len(self.predicateListNames) > 0:
                 o.writelines(f"{self.predicateListNamePython}\n")
-            else:
-                o.writelines(f"\treturn\n")
+            o.writelines(f"\treturn\n")
 
             o.writelines(f"def personal_OutputLabel_Formula(self, label, node):\n")
             o.writelines(f"\tcopy,domain_element = node\n")
@@ -405,9 +404,7 @@ class yamlConversion:
             if len(self.predicateListNames) > 0:
                 for predicatePython in self.predicateLogicPython:
                     o.writelines(f"{predicatePython}\n")
-                o.writelines(f"\treturn False\n")
-            else:
-                o.writelines(f"\treturn\n")
+            o.writelines(f"\treturn False\n")
 
 
 

@@ -25,6 +25,7 @@ def personal_features(self):
     self.labels_to_symbols = {v: k for k, v in self.symbol_to_labels.items()}
 def personal_predicate_setup(self):
 	self.predicates_list = [ 'intervocalic' ]
+	return
 def personal_OutputLabel_Formula(self, label, node):
 	copy,domain_element = node
 	if copy == 1 and label == 'voiced':
