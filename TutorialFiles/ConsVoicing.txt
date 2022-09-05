@@ -1,0 +1,14 @@
+-- replace every 'p' with 'b' 
+(def-transduction ex4-consonant-voicing
+  (def-input-alphabet (list "a" "p" "e" "d" "#" "%"))
+  (def-output-alphabet (list "a" "p" "e" "d"  "#" "%"))
+  (def-copy-set-size 1)
+  (def-output "a" 1 (x)
+    (if (a_0 x)  'true  'false))
+  (def-output "e" 1 (x)
+    (if (e_0 x)  'true  'false))
+  (def-output "d" 1 (x)
+    (if (d_0 x)  'true  
+	(if (b_0 x) 'true
+		 'false)))
+)

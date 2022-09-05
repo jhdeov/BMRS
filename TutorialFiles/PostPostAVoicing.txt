@@ -1,0 +1,23 @@
+-- replace a 'p' with 'b' if that 'p' is in context 'a_p'
+-- utilize referencing across output elements
+(def-transduction ex9-postpost-A-voicing
+  (def-input-alphabet (list "a" "p" "e" "b" "#" "%"))
+  (def-output-alphabet (list "a" "p" "e" "b"  "#" "%"))
+  (def-copy-set-size 1)
+  (def-predicate postpostA  (x)
+    (if (a_0 (pred (pred x))) 'true 'false))
+  (def-output "a" 1 (x)
+    (if (a_0 x)  'true  'false))
+  (def-output "e" 1 (x)
+    (if (e_0 x)  'true  'false))
+  (def-output "p" 1 (x)
+    (if (p_0 x)
+		    (if (b_1 x) 'false
+			'true)  -- change an input 'p' to 'p' unless it's already a 'b'
+	    'false))
+  (def-output "b" 1 (x)
+    (if (b_0 x)  'true
+	    (if (p_0 x) 
+			(if (postpostA x) 'true
+		    	'false) 'false) ))
+)

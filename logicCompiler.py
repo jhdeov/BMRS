@@ -29,7 +29,7 @@ class logicCompilation:
         self.labels_list=[]
         self.labels_are_input = True
         self.inputIsString = True # TODO incorporate variation
-        self.isOrderPreserving = True # TODO incorporate variation
+        self.OrderingStatus = "order-preserving"
 
 
         self.importedModule.personal_setup(self)
@@ -183,59 +183,116 @@ class logicCompilation:
 
 
     def initializeOutputFunctions(self):
-        #This will populate the succ/pred values of the outgraph with either None if non-order-preserving
-        # otherwise with order-preserving values
+        #This will populate the succ/pred values of the outgraph with either:
+        # a) None if 'other' ordering, meaning the user specifies succ/pred functions
+        # b) with order-preservating succ/pred
+        # c) with concatenative succ/pred
         #TODO: incorporate non-string functions
         print("Pre-processing order-preservation succ/pred relations for all nodes")
         for copyindex in range(len(self.copyset)):
             current_copy = self.copyset[copyindex]
+            first_domain_element = 0
+            last_domain_element = self.domain_size-1
+            first_copy = self.copyset[0]
+            last_copy = self.copyset[-1]
             for function in self.functions_for_nodes.keys():
                 for domain_element in range(self.domain_size):
-                    if not self.isOrderPreserving:
+                    if self.OrderingStatus == "other":
                         self.functions_for_nodes[function][(current_copy,domain_element)] =  None
-                    else:
+                    elif self.OrderingStatus == "order-preserving":
                         assert function == 'succ' or function == 'pred'
                         if len(self.copyset) is 1:
                             if self.functions_for_nodes[function][(0,domain_element)] ==  (None,None):
                                 self.functions_for_nodes[function][(current_copy,domain_element)] =  (None,None)
                             else:
                                 self.functions_for_nodes[function][(current_copy,domain_element)] = \
-                                    (current_copy,self.functions_for_nodes[function][(0,domain_element)][1])
+                                    (current_copy,self.get_NodeDomain(self.functions_for_nodes[function][(0,domain_element)]))
                         elif copyindex is len(self.copyset)-1: # copyindex is final
                             previous_copy = self.copyset[copyindex-1]
-                            first_copy= self.copyset[0]
                             if function == 'succ':
-                                if self.functions_for_nodes[function][(0,domain_element)] ==   (None,None):
+                                if domain_element  == last_domain_element:
                                     self.functions_for_nodes[function][(current_copy,domain_element)] =  (None,None)
                                 else:
                                     self.functions_for_nodes[function][(current_copy,domain_element)] = \
-                                       (first_copy, self.functions_for_nodes[function][(0,domain_element)][1])
+                                       (first_copy, self.get_NodeDomain(self.functions_for_nodes[function][(0,domain_element)]))
                             elif function == 'pred':
                                 self.functions_for_nodes[function][(current_copy,domain_element)] = \
                                      (previous_copy, domain_element)
                         elif copyindex is 0:##copyindex is initial
-                            current_copy = self.copyset[copyindex]
                             next_copy = self.copyset[copyindex + 1]
-                            last_copy = self.copyset[-1]
                             if function == 'succ':
                                 self.functions_for_nodes[function][(current_copy,domain_element)] = \
                                         (next_copy, domain_element)
                             elif function == 'pred':
-                                if self.functions_for_nodes[function][(0,domain_element)] == (None,None):
+                                if domain_element == first_domain_element:
                                     self.functions_for_nodes[function][(current_copy,domain_element)] =  (None,None)
                                 else:
                                     self.functions_for_nodes[function][(current_copy,domain_element)] = \
-                                        (last_copy, self.functions_for_nodes[function][(0,domain_element)][1])
+                                        (last_copy, self.get_NodeDomain(self.functions_for_nodes[function][(0,domain_element)]))
                         else:
-                            current_copy = self.copyset[copyindex]
                             next_copy = self.copyset[copyindex + 1]
                             if function == 'succ':
                                 self.functions_for_nodes[function][(current_copy,domain_element)] = \
                                     (next_copy, domain_element)
                             elif function == 'pred':
                                 self.functions_for_nodes[function][(current_copy,domain_element)] = \
-                                    (first_copy, self.functions_for_nodes[function][(0,domain_element)][1])
-
+                                    (first_copy, self.get_NodeDomain(self.functions_for_nodes[function][(0,domain_element)]))
+                    elif self.OrderingStatus == "concatenative":
+                        assert function == 'succ' or function == 'pred'
+                        if len(self.copyset) is 1:
+                            if self.functions_for_nodes[function][(0,domain_element)] ==  (None,None):
+                                self.functions_for_nodes[function][(current_copy,domain_element)] =  (None,None)
+                            else:
+                                self.functions_for_nodes[function][(current_copy,domain_element)] = \
+                                    (current_copy,self.get_NodeDomain(self.functions_for_nodes[function][(0,domain_element)]))
+                        elif copyindex is len(self.copyset)-1: # copyindex is final
+                            previous_copy = self.copyset[copyindex-1]
+                            if function == 'succ':
+                                if domain_element  == last_domain_element:
+                                    self.functions_for_nodes[function][(current_copy,domain_element)] =  (None,None)
+                                else:
+                                    self.functions_for_nodes[function][(current_copy,domain_element)] = \
+                                       (current_copy, self.get_NodeDomain(self.functions_for_nodes[function][(0,domain_element)]))
+                            elif function == 'pred':
+                                if domain_element  == first_domain_element:
+                                    self.functions_for_nodes[function][(current_copy,domain_element)] =  (previous_copy,last_domain_element)
+                                else:
+                                    self.functions_for_nodes[function][(current_copy,domain_element)] = \
+                                       (current_copy, self.get_NodeDomain(self.functions_for_nodes[function][(0,domain_element)]))
+                        elif copyindex is 0:##copyindex is initial
+                            next_copy = self.copyset[copyindex + 1]
+                            if function == 'succ':
+                                if domain_element == last_domain_element:
+                                    self.functions_for_nodes[function][(current_copy,domain_element)] =  (next_copy,first_domain_element)
+                                else:
+                                    self.functions_for_nodes[function][(current_copy,domain_element)] = \
+                                        (current_copy, self.get_NodeDomain(self.functions_for_nodes[function][(0,domain_element)]))
+                            elif function == 'pred':
+                                if domain_element == first_domain_element:
+                                    self.functions_for_nodes[function][(current_copy,domain_element)] =  (None,None)
+                                else:
+                                    self.functions_for_nodes[function][(current_copy,domain_element)] = \
+                                        (current_copy, self.get_NodeDomain(self.functions_for_nodes[function][(0,domain_element)]))
+                        else:
+                            next_copy = self.copyset[copyindex + 1]
+                            previous_copy = self.copyset[copyindex - 1]
+                            if function == 'succ':
+                                if domain_element == last_domain_element:
+                                    self.functions_for_nodes[function][(current_copy,domain_element)] =  (next_copy,first_domain_element)
+                                else:
+                                    self.functions_for_nodes[function][(current_copy,domain_element)] = \
+                                        (current_copy, self.get_NodeDomain(self.functions_for_nodes[function][(0,domain_element)]))
+                            elif function == 'pred':
+                                if domain_element == first_domain_element:
+                                    self.functions_for_nodes[function][(current_copy, domain_element)] = (
+                                    previous_copy, last_domain_element)
+                                else:
+                                    self.functions_for_nodes[function][(current_copy, domain_element)] = \
+                                        (current_copy,
+                                         self.get_NodeDomain(self.functions_for_nodes[function][(0, domain_element)]))
+                    else:
+                        print(f"The ordering status ({self.OrderingStatus}) is not one of the available ones")
+                        exit()
         print(f"Established the following functions for the output:\n{self.functions_for_nodes}")
     def fill_output(self):
 
@@ -255,8 +312,8 @@ class logicCompilation:
         print("We will find all output nodes that have labels")
         self.findOvertOutput()
 
-        if self.inputIsString and not self.isOrderPreserving:
-            print(f"The transduction is not order-preserving, so we  must determine all the succ/pred relations"
+        if self.inputIsString and self.OrderingStatus ==  "other":
+            print(f"The transduction is not order-preserving nor concatenative, so we  must determine all the succ/pred relations"
                   f"\nWe determine succ/pred of output nodes that have labels")
             for copy in self.copyset:
                 print("\tEvaluating elements in Copy ", copy)
@@ -601,10 +658,10 @@ class logicCompilation:
         # print(f'Created the following output segments for displaying pred:\n\t{self.output_segmentsForOrderingPred}')
 
     def cleanUpStringPath(self):
-        if self.inputIsString and self.isOrderPreserving:
+        if self.inputIsString and not (self.OrderingStatus == "other"):
             print(f'The transduction must create a string')
             print(f'We process the transduction to remove succ/pred functions to or from non-overt output nodes'
-                  f'\nIm not sure if this should be restricted to order preserving functions')
+                  f'\nIm not sure if this should be restricted to order preserving or concatenative functions')
             print(f'The initial function list is:\n{self.functions_for_nodes}')
             for copy in self.copyset:
                 for domain_element in self.domain_elements:
@@ -682,7 +739,7 @@ class logicCompilation:
             print(f'TODO')
             exit()
     def print_display(self):
-        print("Input and output graphs are printed into the print.message.log")
+        print("Input and output graphs are printed into the print.message.tsv")
         # The printing code was taken from https://stackoverflow.com/a/2513511
         old_stdout = sys.stdout
         log_file = open(self.bmrs + ".print.message.log", "w")
@@ -691,7 +748,7 @@ class logicCompilation:
         for row in self.display:
             print(*row, sep='\t')
 
-        print(self.outputString)
+        print(f"\n\nOutput string:\t{self.outputString}")
         sys.stdout = old_stdout
         log_file.close()
 

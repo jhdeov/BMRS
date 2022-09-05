@@ -1,0 +1,14 @@
+-- replace every 'a' with 'e', and every 'e' with 'a'
+(def-transduction ex2-vowel-exchange
+  (def-input-alphabet (list "a" "b" "e" "d" "#" "%"))
+  (def-output-alphabet (list "a" "b" "e" "d"  "#" "%"))
+  (def-copy-set-size 1)
+  (def-output "a" 1 (x)
+    (if (e_0 x)  'true  'false))
+  (def-output "b" 1 (x)
+    (if (b_0 x)  'true  'false))
+  (def-output "e" 1 (x)
+    (if (a_0 x)  'true  'false))
+  (def-output "d" 1 (x)
+    (if (d_0 x)  'true  'false))
+)

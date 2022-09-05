@@ -1,0 +1,17 @@
+-- replace a 'pp' with 'pəp'
+-- don't need to specify succ/pred relations because we use order-preservation by default
+(def-transduction ex8-repair-consonant-cluster
+  (def-input-alphabet (list "a" "p" "#" "%"))
+  (def-output-alphabet (list "a" "p" "ə"  "#" "%"))
+  (def-copy-set-size 2)
+  (def-predicate firstInCluster  (x)
+    (if (p_0 x)
+        (if (p_0 (succ x)) 'true 'false)
+        'false))
+  (def-output "a" 1 (x)
+    (if (a_0 x)  'true  'false))
+  (def-output "p" 1 (x)
+    (if (p_0 x) 'true 'false))
+  (def-output "ə" 2 (x)
+    (if (firstInCluster x) 'true 'false))
+)

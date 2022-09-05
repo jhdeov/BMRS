@@ -88,7 +88,7 @@ class yamlConversion:
                 print(f'->Updated predicate list:\n{self.predicateList_yaml}')
             elif yamlComponentName == 'def-output':
                 self.insertOutputFunctYamlToList(yamlComponent)
-                print(f'->Updated output function list:\n{self.outputFunctList_yaml}')
+                print(f'->Updated output label function list:\n{self.outputFunctList_yaml}')
             else:
                 print(f'This Yaml component could not be processed:{yamlComponent}')
                 exit()
@@ -102,7 +102,7 @@ class yamlConversion:
         self.processCopySet()
         print('\n4) Creating the predicate code')
         self.processPredicateList()
-        print('\n5) Creating the output function code')
+        print('\n5) Creating the output label function code')
         self.processOutputLabelFormulaList()
 
         print("\nCreating the python file")
@@ -157,6 +157,7 @@ class yamlConversion:
 
     def yamlToList(self,originalYaml):
         # Given a YAML file, convert it into a list
+        print("Creating a cleaned up YAML file")
         outFileCleaned = originalYaml[:-4] + "_cleaned.txt"
         codeToProcess = ""
         with codecs.open(originalYaml, 'r', 'utf-8') as iFile:
@@ -164,14 +165,14 @@ class yamlConversion:
                 lines = iFile.read().splitlines()
                 lines[0] = lines[0].replace('\ufeff', "")
                 for line in lines:
+                    print(f"\tReading in line:{line}")
                     # Remove comments, taken from https://stackoverflow.com/a/904758
                     head, sep, tail = line.partition('--')
                     headStripped = head.strip()
                     headStripped = headStripped.replace('  ',' ') # to remove any extra spaces that'll confuse the parser
                     if len(headStripped)>0:
-                        o.writelines(head + "\n")
-
-                        codeToProcess = codeToProcess + headStripped
+                        o.writelines(head+  "\n")
+                        codeToProcess = codeToProcess + headStripped + ' '
         print(f'Reading the following code:\n{(codeToProcess)}')
         codeToProcess = self.parse_parentheses(codeToProcess)
         print("->YAML file is parsed to the following list")
@@ -230,7 +231,7 @@ class yamlConversion:
     def processOutputLabelFormulaList(self):
         self.outputLabelFormulaPythonList = []
         for outputLabelFunction_listifid_yaml in self.outputFunctList_yaml:
-            print(f'Working on output function code from yaml:\n{outputLabelFunction_listifid_yaml}')
+            print(f'Working on output label function code from yaml:\n{outputLabelFunction_listifid_yaml}')
             outputLabelFormula_label = outputLabelFunction_listifid_yaml['name']
             outputLabelFormula_copy = outputLabelFunction_listifid_yaml['copy']
             outputLabelFormula_node = outputLabelFunction_listifid_yaml['node']
@@ -247,31 +248,35 @@ class yamlConversion:
 
 
     def processPredicateList(self):
+        print('Creating python code for predicate names')
         self.predicateListNames = []
+        self.predicateListNamePython = ""
+        self.predicateLogicPython = []
         for predicateYaml in self.predicateList_yaml:
             print(f'Reading predicate-yaml: {predicateYaml}')
             self.predicateListNames.append(predicateYaml['name'])
+        if len(self.predicateListNames) is 0:
+            print("There are no predicates to creates")
+        else:
+            self.predicateListNamePython = f"\tself.predicates_list = [ "
+            for predicateName in self.predicateListNames[:-1]:
+                print(f'Working on:{predicateName}')
+                self.predicateListNamePython = self.predicateListNamePython + f"'{predicateName}', "
+                print(f'Added:\n{self.predicateListNamePython}')
+            self.predicateListNamePython = self.predicateListNamePython + f"'{self.predicateListNames[-1]}' ]"
+            print(f'->Finished creating python code for predicate names:\n{self.predicateListNamePython}')
 
-        print('Creating python code for predicate names')
-        self.predicateListNamePython = f"\tself.predicates_list = [ "
-        for predicateName in self.predicateListNames[:-1]:
-            print(f'Working on:{predicateName}')
-            self.predicateListNamePython = self.predicateListNamePython + f"'{predicateName}', "
-            print(f'Added:\n{self.predicateListNamePython}')
-        self.predicateListNamePython = self.predicateListNamePython + f"'{self.predicateListNames[-1]}' ]"
-        print(f'->Finished creating python code for predicate names:\n{self.predicateListNamePython}')
+            print(f'->Creating the following list of predicates: {self.predicateListNames}')
 
-        print(f'->Creating the following list of predicates: {self.predicateListNames}')
-        self.predicateLogicPython = []
-        for predicateYaml in self.predicateList_yaml:
-            predicateText = f"\tif level is 0 and predicate == '{predicateYaml['name']}':"
-            assert predicateYaml['node'] == ['x']
-            logicBody=self.processLogicBody(predicateYaml['logic'],"\t\t")
-            predicateText = predicateText + f"\n{logicBody}"
-            print(f'Created:\n{predicateText}')
-            predicateText=self.addReturnsToLogicBody(predicateText)
-            print(f'Cleaned up with returns:\n{predicateText}')
-            self.predicateLogicPython.append(predicateText)
+            for predicateYaml in self.predicateList_yaml:
+                predicateText = f"\tif level is 0 and predicate == '{predicateYaml['name']}':"
+                assert predicateYaml['node'] == ['x']
+                logicBody=self.processLogicBody(predicateYaml['logic'],"\t\t")
+                predicateText = predicateText + f"\n{logicBody}"
+                print(f'Created:\n{predicateText}')
+                predicateText=self.addReturnsToLogicBody(predicateText)
+                print(f'Cleaned up with returns:\n{predicateText}')
+                self.predicateLogicPython.append(predicateText)
 
     def processLogicBody(self,text,tabs):
         print(f'Logical text to process:{text}')
@@ -303,12 +308,12 @@ class yamlConversion:
             firstIf,secondCondYaml,thirdRes,fourthElse = text
             assert firstIf == 'if'
             secondCondLogic = self.processLogicBody(secondCondYaml,'')
-            logicboy = f'{tabs}if {secondCondLogic}:\n'
+            logicbody = f'{tabs}if {secondCondLogic}:\n'
             thirdResultLogic = self.processLogicBody(thirdRes,f'{tabs}\t')
-            logicboy = f"{logicboy}{thirdResultLogic}"
-            fourthElseLogic = self.processLogicBody(fourthElse,'')
-            logicboy = f"{logicboy}\n{tabs}else:\n{tabs}\t{fourthElseLogic}"
-            return logicboy
+            logicbody = f"{logicbody}{thirdResultLogic}"
+            fourthElseLogic = self.processLogicBody(fourthElse,f"{tabs}\t")
+            logicbody = f"{logicbody}\n{tabs}else:\n{fourthElseLogic}"
+            return logicbody
 
             # if copy is 1 and label == 'stress':
             #     if self.get_value('input', 'predicate', 'only', domain_element):
@@ -400,9 +405,10 @@ class yamlConversion:
             if len(self.predicateListNames) > 0:
                 for predicatePython in self.predicateLogicPython:
                     o.writelines(f"{predicatePython}\n")
+                o.writelines(f"\treturn False\n")
             else:
                 o.writelines(f"\treturn\n")
-            o.writelines(f"\treturn False\n")
+
 
 
 

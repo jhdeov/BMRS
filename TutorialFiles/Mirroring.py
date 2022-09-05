@@ -1,29 +1,30 @@
-#Automatically generated Python file from YAML:ex2-fully-explicit
+#Manually created: convert X to XXʳ
 def personal_setup(self):
 	self.input_symbols = [ 'b',  'a','c'  ]
 	self.labels_list = [ 'b',  'a','c' ,'%', '#' ]
 	self.copyset = [1,2]
 	self.labels_are_input = True
-	self.isOrderPreserving = False
+	self.OrderingStatus = "other" #
 def personal_features(self):
 	return
 def personal_predicate_setup(self):
-	self.predicates_list = [ 'word-second', 'word-final', 'word-initial' ]
+	self.predicates_list = [  'word-final' ]
 def personal_OutputLabel_Formula(self, label,node):
 	copy,domain_element = node
-	if (copy is 1 or copy is 2) and label == "a":
-		# if self.get_BooleanValue('predicate','word-second',(0,domain_element)):
-		# 	return False
-		# if self.get_BooleanValue('predicate', 'word-final',(0,  domain_element)):
-		# 	return False
+	if copy is 1 and label == "a":
+		return self.get_BooleanValue('label', 'a', (0, domain_element))
+	if copy is 1 and label == "b":
+		return self.get_BooleanValue('label', 'b', (0, domain_element))
+	if copy is 1 and label == "c":
+		return self.get_BooleanValue('label', 'c', (0, domain_element))
+	if copy is 2 and label == "a":
 		return self.get_BooleanValue('label','a',(0,domain_element))
-	if (copy is 1 or copy is 2) and label == "b":
-		return self.get_BooleanValue( 'label', 'b', (0,domain_element))
-	# For all other copies and labels, the default is to return False so add the below
-	# Makes it clearer
+	if copy is 2 and label == "b":
+		return self.get_BooleanValue('label','b',(0,domain_element))
+	if copy is 2 and label == "c":
+		return self.get_BooleanValue('label','c',(0,domain_element))
 	return False
 
-	# Change input to 0
 def personal_OutputFunction_Formula(self,  function, node):
 	copy,domain_element = node
 	if copy is 1 and function == "succ":
@@ -40,14 +41,11 @@ def personal_OutputFunction_Formula(self,  function, node):
 			return (1, domain_element)
 		else:
 			return (2, self.get_NodeDomain(self.get_NodeValue('function', 'succ', (0, domain_element))))
-
+	return (None,None)
 
 def personal_Predicate_Formula(self,predicate,node):
 	level,domain_element = node
 
-	if level is 0 and predicate == 'word-second':
-		return self.get_BooleanValue('label','#',self.get_NodeValue('function','pred',self.get_NodeValue('function','pred',(0,domain_element))))
 	if level is 0 and  predicate == 'word-final':
 		return self.get_BooleanValue('label','%',self.get_NodeValue('function','succ',(0,domain_element)))
-	if level is 0 and  predicate == 'word-initial':
-		return self.get_BooleanValue('label','#',self.get_NodeValue('function','pred',(0,domain_element)))
+	return False
