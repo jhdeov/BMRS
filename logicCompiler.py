@@ -742,7 +742,7 @@ class logicCompilation:
         print("Input and output graphs are printed into the print.message.tsv")
         # The printing code was taken from https://stackoverflow.com/a/2513511
         old_stdout = sys.stdout
-        log_file = open(self.bmrs + ".print.message.log", "w")
+        log_file = open(self.bmrs + ".print.message.tsv", "w")
         sys.stdout = log_file
 
         for row in self.display:
