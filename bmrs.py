@@ -16,12 +16,12 @@ elif parameter == 'run':
     file =  sys.argv[2]
     word =  sys.argv[3]
     if file[-3:] == '.py':
-        runningObj = logicCompilation(word, file[:-3])
+        runningObj = logicCompilation(word, file)
         print(f"Output:{runningObj.outputString}")
     else:
         pythonFileName = file[:-4] + '.py'
         conversionObj = yamlConversion(file, pythonFileName)
-        runningObj = logicCompilation(word, pythonFileName[:-3])
+        runningObj = logicCompilation(word, pythonFileName)
         print(f"Output:{runningObj.outputString}")
 
 #

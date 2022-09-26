@@ -1,13 +1,14 @@
 #from Formulas.HToneSpreadPenult import *
 import sys
-from importlib import import_module
+from pydoc import importfile
+
 
 class logicCompilation:
     def __init__(self,word,bmrs):
 
 
         self.bmrs= bmrs
-        self.importedModule = import_module(bmrs)
+        self.importedPython = importfile(bmrs)
 
         print("Useful debugging info for conversion is printed into the running.message.log")
         # The printing code was taken from https://stackoverflow.com/a/2513511
@@ -32,9 +33,9 @@ class logicCompilation:
         self.OrderingStatus = "order-preserving"
 
 
-        self.importedModule.personal_setup(self)
+        self.importedPython.personal_setup(self)
         if self.labels_are_input: self.associate_symbols_to_labels()
-        else: self.importedModule.personal_features(self)
+        else: self.importedPython.personal_features(self)
         if self.inputIsString:
             self.functions_list = ['succ', 'pred']
         else:
@@ -60,7 +61,7 @@ class logicCompilation:
 
         # Intiailize the output structure to a matrix of Nothing, same for input predicates
         self.predicates_list = []
-        self.importedModule.personal_predicate_setup(self)
+        self.importedPython.personal_predicate_setup(self)
         self.create_input_predicates()
         
         # Start creating the display graph for the input
@@ -395,7 +396,7 @@ class logicCompilation:
 #                     print(f'\t\t\t\t\tReturning an input predicate value {returnValue}')
 #                     return returnValue
 #                 print('\t\t\t\t\tWill evaluate the predicate using the user predicate list for: '  + str(name))
-#                 found = self.importedModule.personal_Predicate_Formula(self, name, domain_element)
+#                 found = self.importedPython.personal_Predicate_Formula(self, name, domain_element)
 #                 print(f'hi {found}')
 #                 print('\t\t\t\t\tReturned predicate value for '+str(name)+' was: ' + str(found))
 #                 if found is None:
@@ -412,7 +413,7 @@ class logicCompilation:
 #                     return self.labels_for_nodes[name][(level,domain_element)]
 #                 else:
 #                     print('\t\t\t\t\tWill evaluate the output label using the user label list for: ' + str(name))
-#                     found = self.importedModule.personal_OutputLabel_Formula(self, level, name, domain_element)
+#                     found = self.importedPython.personal_OutputLabel_Formula(self, level, name, domain_element)
 #                     print('\t\t\t\t\tReturned output label value was: ' + str(found))
 #                     if found is None:
 #                         print('\t\t\t\t\tThe value is None so its set to false')
@@ -426,7 +427,7 @@ class logicCompilation:
 #                     print("\t\t\t\t\tThe value was already evaluated in a previous get")
 #                     return self.functions_for_nodes[name][(level,domain_element)]
 #                 else:
-#                     found = self.importedModule.personal_OutputFunction_Formula(self, level, name, domain_element)
+#                     found = self.importedPython.personal_OutputFunction_Formula(self, level, name, domain_element)
 #                     print('\t\t\t\t\tReturned output function value was: ' + str(found))
 #                     if found is None:
 #                         print('\t\t\t\t\tThe value is None so its set to (None,None)')
@@ -495,7 +496,7 @@ class logicCompilation:
                     print(f'\t\t\t\t\tReturning an input predicate value {returnValue}')
                     return returnValue
                 print('\t\t\t\t\tWill evaluate the predicate using the user predicate list for: '  + str(name))
-                found = self.importedModule.personal_Predicate_Formula(self, name, (0,domain_element))
+                found = self.importedPython.personal_Predicate_Formula(self, name, (0,domain_element))
                 print('\t\t\t\t\tReturned predicate value for '+str(name)+' was: ' + str(found))
                 if found is None:
                     print('\t\t\t\t\tThe value is None. Is this Error, because it was false before?')
@@ -512,7 +513,7 @@ class logicCompilation:
                     return self.labels_for_nodes[name][(level,domain_element)]
                 else:
                     print('\t\t\t\t\tWill evaluate the output label using the user label list for: ' + str(name))
-                    found = self.importedModule.personal_OutputLabel_Formula(self,  name, (level,domain_element))
+                    found = self.importedPython.personal_OutputLabel_Formula(self,  name, (level,domain_element))
                     print('\t\t\t\t\tReturned output label value was: ' + str(found))
                     if found is None:
                         print('\t\t\t\t\tThe value is None. Is this Error, because it was false before?')
@@ -587,7 +588,7 @@ class logicCompilation:
                     print("\t\t\t\t\tThe value was already evaluated in a previous get")
                     return self.functions_for_nodes[name][(level,domain_element)]
                 else:
-                    found = self.importedModule.personal_OutputFunction_Formula(self, name, (level, domain_element))
+                    found = self.importedPython.personal_OutputFunction_Formula(self, name, (level, domain_element))
                     print('\t\t\t\t\tReturned output function value was: ' + str(found))
                     if found is None:
                         print('\t\t\t\t\tThe value is None. Error? It used to be set to (None,None)')
