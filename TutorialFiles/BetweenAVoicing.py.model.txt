@@ -1,6 +1,0 @@
-input_word:apa
-enriched_input_word:['#', 'a', 'p', 'a', '%']
-domain_element_list:[0, 1, 2, 3, 4]
-domain_element_to_label:[(0, '#'), (1, 'a'), (2, 'p'), (3, 'a'), (4, '%')]
-successor_functions:[(0, 1), (1, 2), (2, 3), (3, 4)]
-predecessor_functions:[(1, 0), (2, 1), (3, 2), (4, 3)]

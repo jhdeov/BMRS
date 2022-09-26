@@ -17,7 +17,7 @@ class logicCompilation:
         print(f"The word model for the input word '{word}' is written printed in the model.txt file")
         # The printing code was taken from https://stackoverflow.com/a/2513511
         old_stdout = sys.stdout
-        word_model_file = open(bmrs + ".model.txt", "w")
+        word_model_file = open(bmrs[:-3] + ".model.txt", "w")
         sys.stdout = word_model_file
 
         self.word_model_for_input = word_model(self.word_type, self.word)
