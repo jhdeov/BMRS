@@ -1,14 +1,30 @@
 #from Formulas.HToneSpreadPenult import *
 import sys
 from pydoc import importfile
-
+from wordModelGenerator import word_model
+import os
 
 class logicCompilation:
-    def __init__(self,word,bmrs):
-
+    def __init__(self,word,word_type,bmrs):
 
         self.bmrs= bmrs
+        self.word = word
+        self.word_type = word_type
         self.importedPython = importfile(bmrs)
+
+        # Given a word and its word-type, we determine its word signature
+        # Information about the input word (domain elements, labels, etc) are extracted from this word model
+        print(f"The word model for the input word '{word}' is written printed in the model.txt file")
+        # The printing code was taken from https://stackoverflow.com/a/2513511
+        old_stdout = sys.stdout
+        word_model_file = open(bmrs + ".model.txt", "w")
+        sys.stdout = word_model_file
+
+        self.word_model_for_input = word_model(self.word_type, self.word)
+        self.word = self.word_model_for_input.enriched_input_word
+
+        sys.stdout = old_stdout
+        word_model_file.close()
 
         print("Useful debugging info for conversion is printed into the running.message.log")
         # The printing code was taken from https://stackoverflow.com/a/2513511
@@ -16,28 +32,23 @@ class logicCompilation:
         log_file = open(bmrs + ".running.message.log", "w")
         sys.stdout = log_file
 
-        #Given a word and bmrs file, we start to set up the system
-        # if the input word was a string like "LLL", then we turn it into a list with word boundaries
-        # ["#, "L", "L", "L", "%"]
-        # We do this so that we have a single representation for string inputs and feature inputs
-        if type(word) is str: word = list(word)
-        self.word=['#'] + word + ['%']
 
-        ####
         # Before we read the BMRS file, we set up the attributes that will be filled by the BMRS file
         self.copyset=None
         self.input_symbols = []
         self.labels_list=[]
         self.labels_are_input = True
-        self.inputIsString = True # TODO incorporate variation
-        self.OrderingStatus = "order-preserving"
+        self.OrderingStatus = "order-preserving" # By default we assume the function is order-preserving
 
 
         self.importedPython.personal_setup(self)
         if self.labels_are_input: self.associate_symbols_to_labels()
         else: self.importedPython.personal_features(self)
-        if self.inputIsString:
+        if self.word_type == 'string':
             self.functions_list = ['succ', 'pred']
+        elif self.word_type == 'tree':
+            print(f'TODO')
+            exit()
         else:
             print(f'TODO')
             exit()
@@ -95,12 +106,12 @@ class logicCompilation:
         self.labels_to_symbols = {v: k for k, v in self.symbol_to_labels.items()}
 
     def create_domain(self):
-        self.domain_size = len(self.word)
-        self.domain_elements = list(range(self.domain_size))
+        self.domain_elements = self.word_model_for_input.domain_element_list
+        self.domain_size = len(self.domain_elements)
     def create_nodesAsList(self, levels):
         nodeList = []
         for level in levels:
-            for domain_element in range(self.domain_size):
+            for domain_element in  self.domain_elements:
                 nodeList.append((level, domain_element))
         return nodeList
     def create_nodesAsDict(self, levels):
@@ -113,39 +124,46 @@ class logicCompilation:
         self.labels_for_nodes = {}
         for label in self.labels_list:
             self.labels_for_nodes[label] = self.initialize_empty_dict(self.graphNodeList)
-        for index in self.domain_elements:
-            segment = self.word[index]
+        # Will go through the list of labels from the word model of the input word
+        # And then incorporate that information into our representations
+        self.labels_of_input = self.word_model_for_input.domain_element_to_label
+        for domain_element,input_label in self.labels_of_input:
             for label in self.labels_list:
-                self.labels_for_nodes[label][(0,index)] = False
+                self.labels_for_nodes[label][(0,domain_element)] = False
             #Need to do some tricks if the domain element has a list of features, e.g., a feature bundle of case and number
             #Check if the segment is a feature bundle; if yes, then give it each of those features via for-loop
             segment_features=frozenset([])
-            if type(segment) is list:
-                for feature in segment:
-                    segment_features = segment_features.union(self.symbol_to_labels[feature])
+            if type(input_label) is list:
+                for feature in input_label:
+                    input_label_features = input_label_features.union(self.symbol_to_labels[feature])
             else:
-                segment_features = self.symbol_to_labels[segment]
-            for feature in segment_features:
-                self.labels_for_nodes[feature][(0,index)] = True
-
+                input_label_features = self.symbol_to_labels[input_label]
+            for feature in input_label_features:
+                self.labels_for_nodes[feature][(0,domain_element)] = True
     def create_input_predicates(self):
         self.predicates_for_nodes={}
         for predicate in self.predicates_list:
             self.predicates_for_nodes[predicate] = self.initialize_empty_dict(self.graphNodeList)
 
     def create_functions(self):
-        if self.inputIsString:
+        if self.word_type == 'string':
+            # Will extract successor and predecessor information from the word model
+            word_models_successor_functions = self.word_model_for_input.successor_functions
+            word_models_predecessor_functions = self.word_model_for_input.predecessor_functions
             self.functions_for_nodes = {}
             self.functions_for_nodes['succ'] = self.initialize_empty_dict(self.graphNodeList)
             self.functions_for_nodes['pred'] = self.initialize_empty_dict(self.graphNodeList)
-            for index in range(len(self.word) - 1):
-                self.functions_for_nodes['succ'][(0,index)] = (0,index + 1)
-            for index in range(1, len(self.word)):
-                self.functions_for_nodes['pred'][(0,index)] = (0,index - 1)
+            for word_models_successor_function in word_models_successor_functions:
+                left,right = word_models_successor_function
+                self.functions_for_nodes['succ'][(0, left)] = (0, right)
+            for word_models_predecessor_function in word_models_predecessor_functions:
+                left,right = word_models_predecessor_function
+                self.functions_for_nodes['pred'][(0,left)] = (0,right)
             # As a trick, we distinguish between None which means the function was not checked
             # vs. (None,None) which means the function was evaluated to return nothing
             self.functions_for_nodes['pred'][(0,0)] = (None,None)
             self.functions_for_nodes['succ'][(0,self.domain_size - 1)] = (None,None)
+
         else:
             print(f'TODO')
             exit()
@@ -313,7 +331,7 @@ class logicCompilation:
         print("We will find all output nodes that have labels")
         self.findOvertOutput()
 
-        if self.inputIsString and self.OrderingStatus ==  "other":
+        if self.word_type == 'string' and self.OrderingStatus ==  "other":
             print(f"The transduction is not order-preserving nor concatenative, so we  must determine all the succ/pred relations"
                   f"\nWe determine succ/pred of output nodes that have labels")
             for copy in self.copyset:
@@ -635,9 +653,6 @@ class logicCompilation:
         # but that requires picking the initial symbol in the output somehow
         print(f"Creating output segments using overt segments:\n{self.overtOutputSegments}")
         print(f"And with function list:\n{self.functions_for_nodes}")
-        # if self.inputIsString:
-        #     self.output_segmentsForOrderingSucc = {}
-        #     self.output_segmentsForOrderingPred = {}
         for copy in self.copyset:
             listForOutputsInCopy= []
             for element in self.domain_elements:
@@ -645,11 +660,6 @@ class logicCompilation:
                 elementIfOvert = self.overtOutputSegments.get((copy,element))
                 if not elementIfOvert == None:
                     listForOutputsInCopy.append(elementIfOvert)
-                    # if self.inputIsString:
-                    #     self.output_segmentsForOrderingSucc[(copy, element)] = self.functions_for_nodes['succ'][
-                    #         (copy, element)]
-                    #     self.output_segmentsForOrderingPred[(copy, element)] = self.functions_for_nodes['pred'][
-                    #         (copy, element)]
                 else:
                     listForOutputsInCopy.append('')
 
@@ -659,7 +669,7 @@ class logicCompilation:
         # print(f'Created the following output segments for displaying pred:\n\t{self.output_segmentsForOrderingPred}')
 
     def cleanUpStringPath(self):
-        if self.inputIsString and not (self.OrderingStatus == "other"):
+        if self.word_type == 'string' and not (self.OrderingStatus == "other"):
             print(f'The transduction must create a string')
             print(f'We process the transduction to remove succ/pred functions to or from non-overt output nodes'
                   f'\nIm not sure if this should be restricted to order preserving or concatenative functions')
@@ -700,7 +710,7 @@ class logicCompilation:
 
     def create_output_segments_String(self):
         #Goes through the list of overt nodes and their succ/pred functions to create a string
-        if self.inputIsString:
+        if self.word_type == 'string':
             print(f'Will generate an output string')
             print(f'\tList of overt nodes:\n{self.overtOutputSegments}')
             print(f'\tList of succ functions:\n{self.functions_for_nodes["succ"]}')
