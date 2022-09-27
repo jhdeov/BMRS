@@ -1,6 +1,7 @@
 # Given an input string or input tree, convert the input to a word model
 import sys
 
+
 class word_model:
     def __init__(self,word_model_format,input_word):
         self.word_model_format=word_model_format
@@ -93,7 +94,7 @@ class word_model:
         for subtreelistIndex in range(1,len(treelist)):
             self.PreorderTraversal(treelist[subtreelistIndex],address+f'{subtreelistIndex-1}',tabs+'\t')
     def create_tree_word_model(self):
-        # Assume the input tree is a bracketed tree like "[a [a b a] [b a c]]"
+        # Assume the input tree is a bracketed tree like "[a [a [b] [a]] [b [a] [c]]]"
         # Note the extra initial and final []. The node labels cannot have spaces
         self.enriched_input_word =self.input_word[1:-1]
         self.parsed_tree = self.parse_bracket(self.enriched_input_word)
