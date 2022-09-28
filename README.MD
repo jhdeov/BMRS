@@ -10,14 +10,14 @@ This is an implementation of the BMRS notation. The implementation works as a co
 
 This implementations works in the following way:
 
-1) Logical transductions are written in a text file using YAML syntax. 
+1) Logical transductions are written in a text file using Lisp syntax. 
 2) These text files are converted to Python code. The Python code uses dynamic programming to run the logical transduction.
 3) You can apply the transduction on an input word.
 
 # Running a  an example
 Tutorial follows.
 1) **Working formulas**: I have written different logical transductions in the [TutorialFiles](TutorialFiles) folder.
-2) **Pick** a text file that you want to run, e.g., `DeletionOfB.txt`. This text file encodes the logical transduction with YAML syntax. Move it to the directory that has the `bmrs.py` file.
+2) **Pick** a text file that you want to run, e.g., `DeletionOfB.txt`. This text file encodes the logical transduction with Lisp syntax. Move it to the directory that has the `bmrs.py` file.
 3) **Run** that text file with an example word `aba`. On the terminal, type:
 `python3 bmrs.py run DeletionOfB.txt 'aba'`
 
