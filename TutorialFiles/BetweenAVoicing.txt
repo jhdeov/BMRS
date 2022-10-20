@@ -2,6 +2,8 @@
 (def-transduction ex6-between-A-voicing
   (def-input-alphabet (list "a" "p" "b" "#" "%"))
   (def-output-alphabet (list "a" "p" "b"  "#" "%"))
+  (def-word-model-class graph )
+  (def-word-model-functions (list "edge1" "edge2" ) )
   (def-copy-set-size 1)
   (def-predicate betweenA  (x)
     (if (a_0 (pred x))

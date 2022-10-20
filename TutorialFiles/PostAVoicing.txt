@@ -4,12 +4,12 @@
   (def-output-alphabet (list "a" "p" "e" "b"  "#" "%"))
   (def-copy-set-size 1)
   (def-output "a" 1 (x)
-    (if (a_0 x)  'true  'false))
+    (if (a(x,0))  'true  'false))
   (def-output "e" 1 (x)
-    (if (e_0 x)  'true  'false))
+    (if (e(x,0))  'true  'false))
   (def-output "p" 1 (x)
-    (if (p_0 x)
-		    (if (a_0 (pred x)) 'false
+    (if (p(x,0))
+		(if (a_0 (pred x)) 'false
 			'true)
 	    'false))
   (def-output "b" 1 (x)
