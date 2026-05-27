@@ -46,7 +46,7 @@ While that YAML system is in development, you can write your own Python files in
 
 For output formula and predicates, the template uses Python if-return-else clauses in a way that (nearly) iconically matches the pen-and-paper BMRS functions.
 
-Nodes in the input and output are treated as items with two coordinates: a level _l_ and a domain element <img src="https://render.githubusercontent.com/render/math?math=x">. For example, the node (0,1) is the domain element 1 in the input, while (1,2) is the domain element 2 in copy 1 in the output. 
+Nodes in the input and output are treated as items with two coordinates: a level _l_ and a domain element $`x`$. For example, the node (0,1) is the domain element 1 in the input, while (1,2) is the domain element 2 in copy 1 in the output. 
 
 When converting to the template, information from the input or output nodes is retrieved with the following commands:
 * To retrieve the Boolean value of a label or predicate, use the function `self.get_BooleanValue(type,name,node)
@@ -54,17 +54,19 @@ When converting to the template, information from the input or output nodes is r
 * To retrieve the domain element of a node, use the function `self.get_NodeDomain(node)`
 * `type` is either "label", "function", or "predicate".
 * `name` is the name of the label/function/predicate, such as "voiced". 
-* `node` is an input our output node; it can be written as a tuple (_l_,<img src="https://render.githubusercontent.com/render/math?math=x">). 
+* `node` is an input our output node; it can be written as a tuple (_l_, $`x`$). 
 
 For example,  the Chandlee & Jardine paper has the output function: 
 
-  <img src="https://render.githubusercontent.com/render/math?math=H_o(x)%20=%20\text{if}%20\square'(x)%20\text{then}%20\top%20\text{else}%20 H(x)">
+```math
+H_o(x) \(= \text{if } \square'(x) \text{ then } \top \text{ else }\) H(x)
+```
 
 This function's meaning is decomposed into the following paraphrase:
-* In copy 1, assign the label "H" to some domain element <img src="https://render.githubusercontent.com/render/math?math=x">...
-* If the domain element <img src="https://render.githubusercontent.com/render/math?math=x"> has the label "stressed" in copy 1, ...
+* In copy 1, assign the label "H" to some domain element $`x`$...
+* If the domain element $`x`$ has the label "stressed" in copy 1, ...
 * then return true, 
-* else return the value of the label "H" in the input for the same domain element <img src="https://render.githubusercontent.com/render/math?math=x">
+* else return the value of the label "H" in the input for the same domain element $`x`$
 
 In our Python system, the above function is translated as follows:
 ```
