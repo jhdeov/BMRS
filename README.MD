@@ -59,7 +59,7 @@ When converting to the template, information from the input or output nodes is r
 For example,  the Chandlee & Jardine paper has the output function: 
 
 ```math
-H_o(x) \(= \text{if } \square'(x) \text{ then } \top \text{ else }\) H(x)
+H_o(x) = \text{if } \square'(x) \text{ then } \top \text{ else } H(x)
 ```
 
 This function's meaning is decomposed into the following paraphrase:
